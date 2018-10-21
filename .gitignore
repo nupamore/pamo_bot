@@ -1,3 +1,9 @@
+
+config.json
+package-lock.json
+images.json
+
+
 # Logs
 logs
 *.log
