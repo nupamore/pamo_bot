@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Gallery</title>
+    <link rel="stylesheet" href="https://cdn.bootcss.com/material-design-icons/3.0.1/iconfont/material-icons.css">
+</head>
+
+<body>
+    <div id="app">
+        <mu-appbar></mu-appbar>
+        <mu-container>
+            <mu-row class="nav" gutter>
+                <!-- <mu-col span="4">
+                    <mu-select label="Uploader" v-model="uploader" full-width>
+                        <mu-option v-for="user,index in users" avatar :key="user" :label="user" :value="user">
+                            <mu-list-item-action avatar>
+                                <mu-avatar :size="36" color="primary">
+                                    {{ user.substring(0, 1) }}
+                                </mu-avatar>
+                            </mu-list-item-action>
+                            <mu-list-item-content>
+                                <mu-list-item-title>{{ user }}</mu-list-item-title>
+                                <mu-list-item-action>
+                                    <mu-list-item-after-text>999</mu-list-item-after-text>
+                                </mu-list-item-action>
+                            </mu-list-item-content>
+                        </mu-option>
+                    </mu-select>
+                </mu-col> -->
+                <mu-col span="4">
+                    <mu-date-input label="Start date" v-model="startDate" full-width :date-time-format="customDateFormat"></mu-date-input>
+                </mu-col>
+                <mu-col span="4">
+                    <mu-date-input label="End date" v-model="endDate" full-width :date-time-format="customDateFormat"></mu-date-input>
+                </mu-col>
+                <mu-col span="4" class="submitWrapper">
+                    <mu-button @click="getImages" color="primary">Submit</mu-button>
+                </mu-col>
+            </mu-row>
+            <mu-row>
+                <mu-col span="6" md="4" v-for="img in images">
+                    <mu-card>
+                        <mu-card-media>
+                          <img :src="img">
+                        </mu-card-media>
+                    </mu-card>
+                </mu-col>
+            </mu-row>
+        </mu-container>
+    </div>
+</body>
+
+<script src="./gallery.js"></script>
+
+</html>

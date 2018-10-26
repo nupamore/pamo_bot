@@ -4,13 +4,22 @@
     "description": "",
     "main": "pamo_bot.js",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "test": "parcel web/front/gallery.html -d web/front/dist",
+        "build": "parcel build web/front/gallery.html -d web/front/dist"
     },
     "author": "",
     "license": "MIT",
     "dependencies": {
         "discord.js": "^11.4.2",
+        "express": "^4.16.4",
+        "muse-ui": "^3.0.1",
         "mysql2": "^1.6.1",
-        "request": "^2.88.0"
+        "request": "^2.88.0",
+        "vue": "^2.5.17"
+    },
+    "devDependencies": {
+        "babel": "^6.23.0",
+        "babel-preset-env": "^1.7.0",
+        "sass": "^1.14.3"
     }
 }

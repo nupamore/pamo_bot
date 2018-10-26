@@ -1,4 +1,6 @@
 
+.cache
+dist
 config.json
 package-lock.json
 images.json

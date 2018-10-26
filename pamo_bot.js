@@ -42,6 +42,7 @@ client.on('ready', () => {
  */
 client.on('message', message => {
     if (message.author.bot) return
+    if (message.content === CONFIG.discord.prefix) return
     if (message.content.indexOf(CONFIG.discord.prefix) !== 0) return
 
     const args = message.content.slice(CONFIG.discord.prefix.length).trim().split(/\s+/g)
@@ -74,7 +75,7 @@ client.on('message', message => {
         kj2: () => f.translate(message, 'nmt', 'ko', 'ja'),
         jk2: () => f.translate(message, 'nmt', 'ja', 'ko'),
     }[command] || (() => noCommand(message))
-    func(command)
+    func()
 })
 
 client.login(CONFIG.discord.token)
