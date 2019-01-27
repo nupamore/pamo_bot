@@ -21,7 +21,7 @@ app.get('/', (req, res) => {
 app.get('/images', images)
 app.get('/randomImage', (req, res) => {
     randomImage({ channel: {
-        guild: { id: 454681618943049728 },
+        guild: { id: 507169726473043968 },
         send(str, data) {
             if (data) res.redirect(data.files[0])
             else res.send(str)
