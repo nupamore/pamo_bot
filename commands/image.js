@@ -15,8 +15,8 @@ const query = `
  * @param {Object} message
  */
 async function image(message) {
-    const connection = await pool.getConnection(async conn => conn)
     try {
+        const connection = await pool.getConnection(async conn => conn)
         const [rows] = await connection.query(query, message.channel.guild.id)
         if (!rows.length) {
             message.channel.send('Not supported this group')

@@ -10,12 +10,14 @@
     "author": "",
     "license": "MIT",
     "dependencies": {
+        "cssnano": "^4.1.10",
         "discord.js": "^11.4.2",
         "express": "^4.16.4",
         "muse-ui": "^3.0.1",
         "mysql2": "^1.6.1",
         "request": "^2.88.0",
-        "vue": "^2.5.17"
+        "vue": "^2.5.17",
+        "vue-load-image": "^0.1.8"
     },
     "devDependencies": {
         "babel": "^6.23.0",

@@ -1,2 +1,22 @@
 
-.nav .submitWrapper { padding: 16px; }
+.mu-pagination { padding: 16px; }
+
+.mu-card-media { overflow: hidden; }
+.mu-card-media img {
+    width: 100%;
+    max-width: 100%;
+    min-width: 100%;
+    display: block;
+    vertical-align: top;
+    transition: 0.3s;
+}
+.mu-card-media-title { transition: 0.3s; padding: 12px; }
+.mu-card-media-title .mu-card-title { float: left; font-size: 14px; line-height: 1.5; }
+.mu-card-sub-title { float: right; }
+
+.mu-card-media:hover img { transform: scale(1.1); }
+.mu-card-media:hover .mu-card-media-title { transform: translateY(100%); }
+
+@media screen and (max-width: 768px) {
+    .mu-card-media-title { padding: 6px; }
+}

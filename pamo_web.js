@@ -3,6 +3,7 @@ const express = require('express')
 const CONFIG = require('./config.json')
 
 const images = require('./web/back/images')
+const uploaders = require('./web/back/uploaders')
 const randomImage = require('./commands/image')
 
 
@@ -19,6 +20,7 @@ app.get('/', (req, res) => {
     res.redirect('/gallery.html')
 })
 app.get('/images', images)
+app.get('/uploaders', uploaders)
 app.get('/randomImage', (req, res) => {
     randomImage({ channel: {
         guild: { id: 507169726473043968 },

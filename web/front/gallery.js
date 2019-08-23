@@ -1,12 +1,13 @@
 
 import Vue from 'vue/dist/vue.js'
 import MuseUI from 'muse-ui'
+import VueLoadImage from 'vue-load-image'
 import 'muse-ui/dist/muse-ui.css'
 import './gallery.scss'
 
 // date
 const today = new Date()
-const beforeDate = new Date(new Date().setDate(today.getDate() - 10))
+const beforeDate = new Date(new Date().setDate(today.getDate() - 30))
 const dayList = ['日', '月', '火', '水', '木', '金', '土']
 const customDateFormat = {
     formatDisplay(date) {
@@ -46,11 +47,16 @@ function toOrigin(url) {
 Vue.use(MuseUI)
 const app = new Vue({
     el: '#app',
+    components: {
+        'vue-load-image': VueLoadImage
+    },
     data: {
         uploader: 'All',
-        users: [],
+        uploaders: [],
 
         images: [],
+        imagesTotal: 0,
+        imagesCurrentPage: 1,
 
         startDate: beforeDate,
         endDate: today,
@@ -61,13 +67,39 @@ const app = new Vue({
             const start = toDBdate(this.startDate)
             const end = toDBdate(this.endDate)
 
-            fetch(`/images?startDate=${start}&endDate=${end}`)
+            fetch(`/images?owner=${this.uploader}&page=1`)
             .then(res => res.json())
             .then(list => {
-                this.images = list.map(_ => toThumb(_.ORIGIN_URL) + '?width=400&height=225')
+                this.images = list.images.map(_ => {
+                    _.thumb = toThumb(_.ORIGIN_URL) + '?width=400&height=225'
+                    return _
+                })
+                this.imagesTotal = list.total
+                this.imagesCurrentPage = 1
+            })
+        },
+        getImagesPage() {
+            const start = toDBdate(this.startDate)
+            const end = toDBdate(this.endDate)
+
+            fetch(`/images?owner=${this.uploader}&page=${this.imagesCurrentPage}`)
+            .then(res => res.json())
+            .then(list => {
+                this.images = list.images.map(_ => {
+                    _.thumb = toThumb(_.ORIGIN_URL) + '?width=400&height=225'
+                    return _
+                })
+            })
+        },
+        getUploaders() {
+            fetch(`/uploaders`)
+            .then(res => res.json())
+            .then(list => {
+                this.uploaders = list
             })
         }
     },
 })
 
+app.getUploaders()
 app.getImages()
