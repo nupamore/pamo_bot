@@ -1,11 +1,10 @@
 
 test
 .cache
-dist
 config.json
 package-lock.json
 images.json
-
+*.map
 
 # Logs
 logs
