@@ -6,6 +6,7 @@ const pool = mysql.createPool(CONFIG.db)
 const QUERY = `
     SELECT owner, count(*) amount
     FROM images
+    WHERE GROUP_ID = 507169726473043968
     GROUP BY owner
     ORDER BY amount DESC
 `

@@ -52,7 +52,10 @@ const app = new Vue({
     },
     data: {
         uploader: 'All',
-        uploaders: [],
+        uploaders: [{
+            owner: 'All',
+            amount: ''
+        }],
 
         images: [],
         imagesTotal: 0,
@@ -95,7 +98,8 @@ const app = new Vue({
             fetch(`/uploaders`)
             .then(res => res.json())
             .then(list => {
-                this.uploaders = list
+                this.uploaders[0].amount = list.reduce((p, n) => p + n.amount, 0)
+                this.uploaders.push(...list)
             })
         }
     },

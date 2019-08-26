@@ -13,7 +13,8 @@ const f = {
     dice: require('./commands/dice'),
     crawl: require('./commands/crawl'),
     image: require('./commands/image'),
-    test: require('./commands/test')
+    test: require('./commands/test'),
+    scrap: require('./commands/scrap')
 }
 
 /**
@@ -42,6 +43,7 @@ client.on('ready', () => {
  */
 client.on('message', message => {
     if (message.author.bot) return
+    if (message.channel.id == '507170212353933312' && message.attachments.size) f.scrap(message)
     if (message.content === CONFIG.discord.prefix) return
     if (message.content.indexOf(CONFIG.discord.prefix) !== 0) return
 

@@ -57,7 +57,23 @@
             <mu-flex justify-content="center">
                 <mu-pagination @change="getImagesPage" :total="imagesTotal" :current.sync="imagesCurrentPage" :page-size="12"></mu-pagination>
             </mu-flex>
-          </mu-container>
+        </mu-container>
+        <mu-container>
+            <mu-paper :z-depth="1">
+                <h2>Patch logs</h2>
+                <ul>
+                    <b>2019-08-27</b>
+                    <li>
+                        업로더에서 All항목을 추가하였습니다.<br>
+                        アップローダーでAll項目を追加しました。
+                    </li>
+                    <li>
+                        디스코드 채널에서 업로드 한 스크린샷이 실시간으로 반영됩니다.<br>
+                        ディスコードチャンネルでアップロードしたスクリーンショットがリアルタイムで反映されます。
+                    </li>
+                </ul>
+            </mu-paper>
+        </mu-container>
     </div>
 </body>
 
