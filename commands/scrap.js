@@ -5,7 +5,7 @@ const CONFIG = require('./../config.json')
 const pool = mysql.createPool(CONFIG.db)
 const query = `
     INSERT INTO images (ORIGIN_URL, OWNER, GROUP_ID, WIDTH, HEIGHT, REG_DATE, ARCHIVE_DATE)
-    VALUES (?, ?, ?, ?, ?, TIMESTAMP(?), NOW());
+    VALUES (?, ?, ?, ?, ?, DATE_ADD(TIMESTAMP(?), INTERVAL 9 HOUR), NOW());
 `
 
 /**
