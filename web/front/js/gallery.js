@@ -3,7 +3,8 @@ import Vue from 'vue/dist/vue.js'
 import MuseUI from 'muse-ui'
 import VueLoadImage from 'vue-load-image'
 import 'muse-ui/dist/muse-ui.css'
-import './gallery.scss'
+import '../css/gallery.scss'
+
 
 // date
 const today = new Date()
