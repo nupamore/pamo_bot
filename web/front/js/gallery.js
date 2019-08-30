@@ -4,6 +4,7 @@ import MuseUI from 'muse-ui'
 import VueLoadImage from 'vue-load-image'
 import 'muse-ui/dist/muse-ui.css'
 import '../css/gallery.scss'
+import Cookies from 'js-cookie'
 
 
 // date
@@ -52,6 +53,13 @@ const app = new Vue({
         'vue-load-image': VueLoadImage
     },
     data: {
+        // guild
+        userid: '',
+        username: '',
+        avatar: '',
+        guilds: [],
+
+        // gallery
         uploader: 'All',
         uploaders: [{
             owner: 'All',
@@ -68,10 +76,11 @@ const app = new Vue({
     },
     methods: {
         getImages() {
+            const galleryId = Cookies.get('galleryId')
             const start = toDBdate(this.startDate)
             const end = toDBdate(this.endDate)
 
-            fetch(`/images?owner=${this.uploader}&page=1`)
+            fetch(`/images?galleryId=${galleryId}&owner=${this.uploader}&page=1`)
             .then(res => res.json())
             .then(list => {
                 this.images = list.images.map(_ => {
@@ -83,10 +92,11 @@ const app = new Vue({
             })
         },
         getImagesPage() {
+            const galleryId = Cookies.get('galleryId')
             const start = toDBdate(this.startDate)
             const end = toDBdate(this.endDate)
 
-            fetch(`/images?owner=${this.uploader}&page=${this.imagesCurrentPage}`)
+            fetch(`/images?galleryId=${galleryId}&owner=${this.uploader}&page=${this.imagesCurrentPage}`)
             .then(res => res.json())
             .then(list => {
                 this.images = list.images.map(_ => {
@@ -96,15 +106,28 @@ const app = new Vue({
             })
         },
         getUploaders() {
-            fetch(`/uploaders`)
+            const galleryId = Cookies.get('galleryId')
+            fetch(`/uploaders?galleryId=${galleryId}`)
             .then(res => res.json())
             .then(list => {
                 this.uploaders[0].amount = list.reduce((p, n) => p + n.amount, 0)
                 this.uploaders.push(...list)
             })
+        },
+        getProfile() {
+            fetch(`/profile`)
+            .then(res => res.json())
+            .then(profile => {
+                this.userid = profile.id
+                this.username = profile.username
+                this.discriminator = profile.discriminator
+                this.avatar = profile.avatar
+                this.guilds = profile.guilds.sort((x, y) => (x.hasBot == y.hasBot) ? 0 : x ? -1 : 1)
+            })
+        },
+        toGallery(guild) {
+            Cookies.set('galleryId', guild.id)
+            location.href = '/gallery.html'
         }
     },
 })
-
-app.getUploaders()
-app.getImages()

@@ -1,4 +1,7 @@
 
+/* common */
+.disable { filter: grayscale(1); }
+
 .mu-pagination { margin: 16px; }
 
 .mu-card-media { overflow: hidden; }
@@ -23,5 +26,27 @@
 .mu-paper li:before { content: '-'; margin-left: -10px; }
 
 @media screen and (max-width: 768px) {
+    body { font-size: 12px; }
     .mu-card-media-title { padding: 6px; }
+}
+
+/* guild */
+.guild { 
+    background: #303136; color: #fff;
+
+    .container { display: flex; min-height: 100vh; align-items: center; }
+    .row { width: 100%; }
+    .mu-card { 
+        margin: 4px; background: none; 
+        .mu-card-header-title .mu-card-title { color: #fff; }
+        .mu-card-header-title .mu-card-sub-title { color: #aaa; float: left; }
+    }
+    .mu-card.server { 
+        background: #7289da; transition: 0.2s;
+        &:not(.disable) { cursor: pointer; }
+        &:hover:not(.disable) { filter: brightness(1.2); }
+        .mu-avatar { vertical-align: middle; }
+        .mu-card-header-title { vertical-align: middle; padding-right: 0; }
+        .mu-card-header-title .mu-card-title { font-size: 1.5em; }
+    }
 }
