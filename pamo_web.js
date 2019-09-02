@@ -55,7 +55,7 @@ app.get('/randomImage', (req, res) => {
  */
 const User = {}
 passport.serializeUser((user, done) => {
-    var me = User[user.profile.id]
+    var me = User[user.profile.accessToken]
     me = user.profile
     done(null, me)
 })
