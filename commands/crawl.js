@@ -83,7 +83,7 @@ async function crawl(message) {
         return
     }
 
-    const page = 100
+    const page = 30
     const promises = []
     for (let i=0; i<page; i++) {
         promises.push(parse(message.channel.guild.id, message.channel.id, i))
