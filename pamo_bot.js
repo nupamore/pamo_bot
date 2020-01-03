@@ -42,8 +42,9 @@ client.on('ready', () => {
  * Request message
  */
 const scrapChannels = [
-    '507170212353933312',
-    '661086194238488616'
+    '507170212353933312',   // VRCHAT
+    '661086194238488616',   // CHUYO
+    '662309945131139107'    // ITTA
 ]
 client.on('message', message => {
     if (message.author.bot) return
