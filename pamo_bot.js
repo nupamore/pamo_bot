@@ -41,9 +41,13 @@ client.on('ready', () => {
 /**
  * Request message
  */
+const scrapChannels = [
+    '507170212353933312',
+    '661086194238488616'
+]
 client.on('message', message => {
     if (message.author.bot) return
-    if (message.channel.id == '507170212353933312' && message.attachments.size) f.scrap(message)
+    if (scrapChannels.includes(message.channel.id) && message.attachments.size) f.scrap(message)
     if (message.content === CONFIG.discord.prefix) return
     if (message.content.indexOf(CONFIG.discord.prefix) !== 0) return
 
