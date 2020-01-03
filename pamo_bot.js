@@ -57,7 +57,7 @@ client.on('message', message => {
 
     // Connect functions to custom command
     const func = {
-        command: () => commandList(message),
+        help: () => commandList(message),
         crawl: () => f.crawl(message),
         dice: () => f.dice(message),
         image: () => f.image(message),
