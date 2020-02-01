@@ -3,6 +3,7 @@ import VueRouter from 'vue-router'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css';
 import App from './App.vue'
+import './common.scss'
 
 // view
 import SimpleDynamicLink from 'view/SimpleDynamicLink.vue'
