@@ -4,14 +4,20 @@
     "description": "",
     "main": "pamo_bot.js",
     "scripts": {
-        "test": "parcel web/front/gallery.html -d web/front/dist",
-        "build": "parcel build web/front/gallery.html -d web/front/dist"
+        "dev": "parcel web/front/index.html -d web/dist",
+        "build": "parcel build web/front/index.html -d web/dist"
+    },
+    "alias": {
+        "component": "./web/front/component",
+        "view": "./web/front/view"
     },
     "author": "",
     "license": "MIT",
     "dependencies": {
+        "component": "^1.1.0",
         "cssnano": "^4.1.10",
         "discord.js": "^11.4.2",
+        "element-ui": "^2.13.0",
         "express": "^4.16.4",
         "express-session": "^1.16.2",
         "i18next": "^17.0.13",
@@ -20,13 +26,20 @@
         "mysql2": "^1.6.1",
         "passport": "^0.4.0",
         "passport-discord": "^0.1.3",
+        "pug": "^2.0.4",
         "request": "^2.88.0",
+        "view": "^1.1.1",
         "vue": "^2.5.17",
-        "vue-load-image": "^0.1.8"
+        "vue-hot-reload-api": "^2.3.4",
+        "vue-load-image": "^0.1.8",
+        "vue-router": "^3.1.5",
+        "web": "^0.0.2"
     },
     "devDependencies": {
+        "@vue/component-compiler-utils": "^3.1.1",
         "babel": "^6.23.0",
         "babel-preset-env": "^1.7.0",
-        "sass": "^1.14.3"
+        "sass": "^1.14.3",
+        "vue-template-compiler": "^2.6.11"
     }
 }

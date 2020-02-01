@@ -14,7 +14,7 @@ const randomImage = require('./commands/image')
  * Server setup
  */
 const app = express()
-app.use('/', express.static(__dirname + '/web/front/dist'))
+app.use('/', express.static(__dirname + '/web/dist'))
 app.use(session({
     secret: CONFIG.passport.clientID,
     resave: true,

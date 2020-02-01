@@ -21,9 +21,9 @@ const f = {
  * Default functions
  * @param {object} message
  */
-function commandList(message) {
+function commandList(message) {     
     const comments = Object.values(f).filter(_ => _.comment).map(_ => _.comment)
-    message.channel.send(comments.reduce((p, n) => `${ p }\n${ n }`, ''))
+    message.channel.send('https://vrc.nupa.moe\n' + comments.reduce((p, n) => `${ p }\n${ n }`, ''))
 }
 async function noCommand(message) {
     const m = await message.channel.send(`ハワワ (ㆁᴗㆁ✿)?`)
