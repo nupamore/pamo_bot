@@ -57,33 +57,29 @@ export default {
         toOrigin(url) {
             return url.replace('media.discordapp.net', 'cdn.discordapp.com')
         },
-        getImageList(page) {
+        async getImageList(page) {
             this.currentPage = page
-            fetch(`/images?galleryId=${this.serverId}&owner=${this.uploaderId}&page=${this.currentPage}`)
-            .then(res => res.json())
-            .then(data => {
-                this.imageList = data.images.map(image => ({
-                    name: image.OWNER,
-                    date: dayjs(image.REG_DATE).format('YYYY-MM-DD'),
-                    origin: image.ORIGIN_URL,
-                    thumb: this.toThumb(image.ORIGIN_URL) + '?width=400&height=225',
-                }))
-                this.pageTotal = data.total || this.pageTotal
-            })
+            const res = await fetch(`/images?galleryId=${this.serverId}&owner=${this.uploaderId}&page=${this.currentPage}`)
+            const data = await res.json()
+            this.imageList = data.images.map(image => ({
+                name: image.OWNER,
+                date: dayjs(image.REG_DATE).format('YYYY-MM-DD'),
+                origin: image.ORIGIN_URL,
+                thumb: this.toThumb(image.ORIGIN_URL) + '?width=400&height=225',
+            }))
+            this.pageTotal = data.total || this.pageTotal
         },
-        onServerSelect(serverId) {
+        async onServerSelect(serverId) {
             this.serverId = serverId
             this.getImageList(1)
             // uploader list
-            fetch(`/uploaders?galleryId=${this.serverId}`)
-            .then(res => res.json())
-            .then(list => {
-                const uploaderList = list.map(item => ({
-                    value: item.owner,
-                    label: item.owner,
-                }))
-                this.uploaderList = [{ value: 'All', label: 'All' }, ...uploaderList]
-            })
+            const res = await fetch(`/uploaders?galleryId=${this.serverId}`)
+            const data = await res.json()
+            const uploaderList = data.map(item => ({
+                value: item.owner,
+                label: item.owner,
+            }))
+            this.uploaderList = [{ value: 'All', label: 'All' }, ...uploaderList]
         },
         onUploaderSelect(uploaderId) {
             this.uploaderId = uploaderId
