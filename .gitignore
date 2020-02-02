@@ -5,7 +5,8 @@ config.json
 package-lock.json
 images.json
 *.map
-dist
+# dist
+front_bak
 
 # Logs
 logs
