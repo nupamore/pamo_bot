@@ -1,5 +1,5 @@
 <template lang="pug">
-    div sdl
+    div Simple Dynamic Link
 </template>
 
 <script>

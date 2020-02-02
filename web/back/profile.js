@@ -20,10 +20,8 @@ module.exports = async function profile(req, res) {
         const [rows] = await connection.query(QUERY)
         const list = rows.map(row => row.group_id)
         const { id, username, discriminator, avatar, guilds } = req.session.passport.user
-        guilds.forEach(guild => {
-            if (list.includes(guild.id)) guild.hasBot = true
-        })
-        res.send({ id, username, discriminator, avatar, guilds })
+        const hasBotGuilds = guilds.filter(guild => list.includes(guild.id))
+        res.send({ id, username, discriminator, avatar, guilds: hasBotGuilds })
         connection.release()
     }
     catch (err) {

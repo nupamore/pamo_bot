@@ -17,6 +17,6 @@ import TopNav from 'component/TopNav'
 export default {
     components: {
         TopNav
-    }
+    },
 }
 </script>

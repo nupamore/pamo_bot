@@ -69,7 +69,14 @@ app.get('/auth/discord', passport.authenticate('discord'))
 app.get('/auth/discord/callback', passport.authenticate('discord', {
     failureRedirect: '/fail'
 }), function (req, res) {
-    res.redirect('/guild.html')
+    res.redirect('/photo')
+})
+
+/**
+ * Finally
+ */
+app.use((req, res, next) => {
+    res.redirect('/')
 })
 
 

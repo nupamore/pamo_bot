@@ -1,5 +1,5 @@
 <template lang="pug">
-    el-select(v-model="value" :placeholder="placeholder")
+    el-select(v-model="value" :placeholder="placeholder" @change="onSelect")
         el-option(
             v-for="item in list"
             :key="item.value"
@@ -26,7 +26,12 @@ export default {
     },
     data() {
         return {
-            value: ''
+            value: '',
+        }
+    },
+    methods: {
+        onSelect() {
+            this.$emit('change', this.value)
         }
     },
 }
