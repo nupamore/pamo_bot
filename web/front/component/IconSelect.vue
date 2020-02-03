@@ -6,8 +6,9 @@
             :label="item.label"
             :value="item.value"
         )
-            el-avatar(:src="item.src")
+            el-avatar(v-if="item.src" :src="item.src")
             .name {{ item.label }}
+            .sub {{ item.sub }}
 </template>
 
 <style lang="scss">
@@ -15,6 +16,7 @@
         height: 46px; line-height: 46px; 
         .el-avatar { float: left; margin: 3px 0; }
         .name { float: left; margin-left: 10px; }
+        .sub { float: right; font-size: 0.8em; opacity: .8; }
     }
 </style>
 

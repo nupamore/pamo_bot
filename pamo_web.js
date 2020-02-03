@@ -71,6 +71,10 @@ app.get('/auth/discord/callback', passport.authenticate('discord', {
 }), function (req, res) {
     res.redirect('/photo')
 })
+app.get('/logout', (req, res) => {
+    req.logout()
+    res.redirect('/')
+})
 
 /**
  * Finally

@@ -12,16 +12,23 @@
                     :route="item.route"
                 ) {{ item.name }}
         el-col(:sm="4" :md="3")
-            el-menu
-                el-menu-item.btn-login(@click="login")
+            el-menu(v-if="!userInfo.id")
+                el-menu-item.btn-profile(@click="login")
                     el-image(fit="cover" src="https://discordapp.com/assets/f8389ca1a741a115313bede9ac02e2c0.svg")
-                    .name Login
+                    .login Login
+            el-menu(v-else)
+                el-menu-item.btn-profile(@click="logout")
+                    el-image(fit="cover" :src="`https://cdn.discordapp.com/avatars/${ userInfo.id }/${ userInfo.avatar }.jpg`")
+                    .name {{ userInfo.username }}
+                    .code {{ '#' + userInfo.discriminator }}
 </template>
 
 <style lang="scss">
-    .btn-login {
-        border-radius: 50px; max-width: 180px; font-size: 20px; margin: 0 0 0 auto;
+    .btn-profile {
+        max-width: 180px; font-size: 20px; margin: 0 0 0 auto;
         .el-image { float: left; width: 50px; height: 50px; margin: 4px 10px; }
+        .name { font-size: 18px; line-height: 2em; }
+        .code { font-size: 12px; line-height: 1em; }
     }
 </style>
 
@@ -39,8 +46,13 @@ export default {
     data() {
         return {
             activeIndex: String,
-            menuList
+            menuList,
         }
+    },
+    computed: {
+        userInfo() {
+            return this.$store.getters.userInfo
+        },
     },
     watch: {
         $route (to, from){
@@ -53,7 +65,13 @@ export default {
         },
         login() {
             location.href = "/auth/discord"
-        }
+        },
+        logout() {
+            this.$confirm('Are you sure logout?')
+            .then(() => {
+                this.$store.dispatch('logout')
+            })
+        },
     },
     created() {
         this.findActiveIndex()

@@ -7,7 +7,6 @@ Vue.use(Vuex)
 export default new Vuex.Store({
     state: {
         userInfo: Object,
-        uploaderList: Array,
     },
     getters: {
         userInfo: state => state.userInfo,
@@ -29,6 +28,9 @@ export default new Vuex.Store({
             const res = await fetch('/profile')
             const data = await res.json()
             state.commit('userInfo', data)
+        },
+        logout(state) {
+            location.href = '/logout'    
         },
     },
 })

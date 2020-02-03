@@ -78,8 +78,10 @@ export default {
             const uploaderList = data.map(item => ({
                 value: item.owner,
                 label: item.owner,
+                sub: item.amount,
             }))
-            this.uploaderList = [{ value: 'All', label: 'All' }, ...uploaderList]
+            const sum = data.reduce((p, n) => p + n.amount, 0)
+            this.uploaderList = [{ value: 'All', label: 'All', sub: sum }, ...uploaderList]
         },
         onUploaderSelect(uploaderId) {
             this.uploaderId = uploaderId
