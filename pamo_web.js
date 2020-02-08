@@ -5,6 +5,7 @@ const DiscordStrategy = require('passport-discord').Strategy
 const CONFIG = require('./config.json')
 
 const images = require('./web/back/images')
+const deleteImage = require('./web/back/deleteImage')
 const uploaders = require('./web/back/uploaders')
 const profile = require('./web/back/profile')
 const randomImage = require('./commands/image')
@@ -15,6 +16,8 @@ const randomImage = require('./commands/image')
  */
 const app = express()
 app.use('/', express.static(__dirname + '/web/dist'))
+app.use(express.json())
+app.use(express.urlencoded( {extended : false } ))
 app.use(session({
     secret: CONFIG.passport.clientID,
     resave: true,
@@ -34,6 +37,7 @@ app.get('/', (req, res) => {
     res.redirect('/auth/discord')
 })
 app.get('/images', images)
+app.delete('/image', deleteImage)
 app.get('/uploaders', uploaders)
 app.get('/profile', profile)
 app.get('/randomImage/:serverId', (req, res) => {

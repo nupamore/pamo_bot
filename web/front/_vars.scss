@@ -1,0 +1,5 @@
+@mixin center { text-align: center; margin: 0 auto; }
+@mixin vCenter { 
+    position: absolute; margin: auto;
+    top: 0; left: 0; right: 0; bottom: 0; 
+}

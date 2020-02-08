@@ -3,7 +3,8 @@
         el-header
             top-nav
         el-main
-            router-view
+            keep-alive
+                router-view
         el-footer
 </template>
 

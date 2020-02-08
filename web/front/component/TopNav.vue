@@ -17,10 +17,11 @@
                     el-image(fit="cover" src="https://discordapp.com/assets/f8389ca1a741a115313bede9ac02e2c0.svg")
                     .login Login
             el-menu(v-else)
-                el-menu-item.btn-profile(@click="logout")
-                    el-image(fit="cover" :src="`https://cdn.discordapp.com/avatars/${ userInfo.id }/${ userInfo.avatar }.jpg`")
-                    .name {{ userInfo.username }}
-                    .code {{ '#' + userInfo.discriminator }}
+                el-popconfirm(title="Are you sure to logout?" @onConfirm="logout")
+                    el-menu-item.btn-profile(slot="reference")
+                        el-image(fit="cover" :src="`https://cdn.discordapp.com/avatars/${ userInfo.id }/${ userInfo.avatar }.jpg`")
+                        .name {{ userInfo.username }}
+                        .code {{ '#' + userInfo.discriminator }}
 </template>
 
 <style lang="scss">

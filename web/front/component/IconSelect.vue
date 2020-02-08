@@ -1,5 +1,10 @@
 <template lang="pug">
-    el-select(v-model="value" :placeholder="placeholder" @change="onSelect")
+    el-select(
+        v-model="value" 
+        :placeholder="placeholder" 
+        @change="onSelect"
+        filterable
+    )
         el-option(
             v-for="item in list"
             :key="item.value"
@@ -25,11 +30,17 @@ export default {
     props: {
         placeholder: String,
         list: Array,
+        current: String,
     },
     data() {
         return {
-            value: '',
+            value: this.current,
         }
+    },
+    watch: {
+        current(val) {
+            this.value = val
+        },
     },
     methods: {
         onSelect() {

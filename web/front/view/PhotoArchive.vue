@@ -2,7 +2,7 @@
     div
         icon-select(placeholder="Select a group" :list="serverList" @change="onServerSelect")
         i.el-breadcrumb__separator.el-icon-arrow-right
-        icon-select(placeholder="Select a user" :list="uploaderList" @change="onUploaderSelect")
+        icon-select(placeholder="Select a user" :current="uploaderId" :list="uploaderList" @change="onUploaderSelect")
         .divider
         el-row.photo-list
             el-col(
@@ -11,9 +11,10 @@
                 :sm="12"
                 :xs="12"
             )
-                photo-card(:item="item")
+                photo-card(:item="item" @deleteClick="onDeleteImage")
         .divider
         el-pagination.center(
+            :currentPage="currentPage"
             :page-size="12"
             :total="pageTotal"
             layout="prev, pager, next"
@@ -52,7 +53,10 @@ export default {
     },
     methods: {
         toThumb(url) {
-            return url.replace('cdn.discordapp.com', 'media.discordapp.net')
+            const media = url.replace('cdn.discordapp.com', 'media.discordapp.net')
+            return (/(mp4)$/.test(url))
+                ? media + '?format=jpeg&width=400&height=225'
+                : media + '?width=400&height=225'
         },
         toOrigin(url) {
             return url.replace('media.discordapp.net', 'cdn.discordapp.com')
@@ -63,14 +67,16 @@ export default {
             const data = await res.json()
             this.imageList = data.images.map(image => ({
                 name: image.OWNER,
+                serverId: this.serverId,
                 date: dayjs(image.REG_DATE).format('YYYY-MM-DD'),
                 origin: image.ORIGIN_URL,
-                thumb: this.toThumb(image.ORIGIN_URL) + '?width=400&height=225',
+                thumb: this.toThumb(image.ORIGIN_URL),
             }))
             this.pageTotal = data.total || this.pageTotal
         },
         async onServerSelect(serverId) {
             this.serverId = serverId
+            this.uploaderId = 'All'
             this.getImageList(1)
             // uploader list
             const res = await fetch(`/uploaders?galleryId=${this.serverId}`)
@@ -86,6 +92,16 @@ export default {
         onUploaderSelect(uploaderId) {
             this.uploaderId = uploaderId
             this.getImageList(1)
+        },
+        async onDeleteImage(originUrl) {
+            const res = await fetch('/image', {
+                method: 'delete',
+                headers: { 'Content-Type': 'application/json', },
+                body: JSON.stringify({ originUrl, serverId: this.serverId }),
+            })
+            if (await res.json()) {
+                this.imageList = this.imageList.filter(img => img.origin !== originUrl)
+            }
         },
     }
 }
