@@ -41,7 +41,7 @@ export default {
     data() {
         return {
             serverId: '',
-            uploaderId: 'All',
+            uploaderId: '',
             uploaderList: [],
             imageList: [],
             currentPage: 1,
