@@ -11,7 +11,13 @@
                 :sm="12"
                 :xs="12"
             )
-                photo-card(:item="item" @deleteClick="onDeleteImage")
+                photo-card(
+                    :item="item" 
+                    :srcList="srcList" 
+                    @deleteClick="onDeleteImage"
+                    @showVideo="onShowVideo"
+                    @closeVideo="onCloseVideo"
+                )
         .divider
         el-pagination.center(
             :currentPage="currentPage"
@@ -20,11 +26,28 @@
             layout="prev, pager, next"
             @current-change="getImageList"
         )
+        video.el-image-viewer__video(
+            ref="video"
+            width="100%"
+            controls
+            autoplay
+        )
+            source(:src="videoSrc" type="video/mp4")
 </template>
 
 <style lang="scss">
-    .photo-list { font-size: 0; }
-    .el-pager li.active { color: #fff; background: #409EFF; }
+@import "./../_vars.scss";
+
+.photo-list { font-size: 0; }
+.el-pager li.active { color: #fff; background: #409EFF; }
+.el-image-viewer__video {
+    @include vCenter;
+    visibility: hidden;
+    max-width: 1280px;
+    z-index: 2001;
+    opacity: 0;
+    &.show { visibility: visible; opacity: 1; transition: 0.5s; }
+}
 </style>
 
 <script>
@@ -46,10 +69,14 @@ export default {
             imageList: [],
             currentPage: 1,
             pageTotal : 0,
+            videoSrc: '',
         }
     },
     computed: {
         ...mapGetters(['serverList']),
+        srcList() {
+            return this.imageList.map(img => img.origin)
+        },
     },
     methods: {
         toThumb(url) {
@@ -102,6 +129,16 @@ export default {
             if (await res.json()) {
                 this.imageList = this.imageList.filter(img => img.origin !== originUrl)
             }
+        },
+        onShowVideo(url) {
+            this.videoSrc = url
+            this.$refs.video.classList.add('show')
+            this.$refs.video.load()
+        },
+        onCloseVideo() {
+            this.$refs.video.classList.remove('show')
+            this.$refs.video.pause()
+            this.$refs.video.currentTime = 0
         },
     }
 }
