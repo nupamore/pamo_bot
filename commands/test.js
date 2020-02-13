@@ -1,7 +1,6 @@
-
 /**
  * Test function
- * 
+ *
  * @param {Object} message
  */
 function test(message) {
@@ -10,8 +9,9 @@ function test(message) {
         message.channel.send(`何だお前`)
         return
     }
-    message.channel.send(`groupId: ${ message.channel.guild.id }\nchannelId: ${message.channel.id}`)
+    message.channel.send(
+        `groupId: ${message.channel.guild.id}\nchannelId: ${message.channel.id}`,
+    )
 }
 
-
-module.exports = test;
+module.exports = test

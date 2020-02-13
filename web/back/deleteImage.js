@@ -1,4 +1,3 @@
-
 const mysql = require('mysql2/promise')
 const CONFIG = require('./../../config.json')
 
@@ -10,9 +9,9 @@ const QUERY = `
 
 /**
  * Delete a image
- * 
- * @param {Object} req 
- * @param {Object} res 
+ *
+ * @param {Object} req
+ * @param {Object} res
  */
 module.exports = async function deleteImage(req, res) {
     const { originUrl, serverId } = req.body
@@ -20,7 +19,9 @@ module.exports = async function deleteImage(req, res) {
     if (!passport) {
         res.sendStatus(401)
     }
-    const group = req.session.passport.user.guilds.find(guild => guild.id === serverId)
+    const group = req.session.passport.user.guilds.find(
+        guild => guild.id === serverId,
+    )
     if (group.permissions !== 2147483647) {
         res.sendStatus(403)
     }
@@ -29,8 +30,7 @@ module.exports = async function deleteImage(req, res) {
         const [rows] = await connection.query(QUERY, originUrl)
         res.send(rows)
         connection.release()
-    }
-    catch (err) {
+    } catch (err) {
         res.sendStatus(400)
         connection.release()
     }

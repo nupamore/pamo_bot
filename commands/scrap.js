@@ -1,4 +1,3 @@
-
 const mysql = require('mysql2/promise')
 const CONFIG = require('./../config.json')
 
@@ -10,33 +9,39 @@ const query = `
 
 /**
  * Insert images to Databsse
- * 
- * @param {Array} images 
- * @param {String} groupId 
+ *
+ * @param {Array} images
+ * @param {String} groupId
  */
 async function insertDB(images, groupId) {
     const promises = images.map(async image => {
         const connection = await pool.getConnection(async conn => conn)
         const { user, timestamp, url, width, height } = image
         try {
-            const [rows] = await connection.query(query, [url, user, groupId, width, height, new Date(timestamp)])
+            const [rows] = await connection.query(query, [
+                url,
+                user,
+                groupId,
+                width,
+                height,
+                new Date(timestamp),
+            ])
             connection.release()
             return 1
-        }
-        catch (err) {
+        } catch (err) {
             // console.log(err)
             connection.release()
             return 0
         }
     })
-    
+
     return Promise.all(promises)
 }
 
 /**
  * Scrap images realtime
- * 
- * @param {Object} message 
+ *
+ * @param {Object} message
  */
 async function scrap(message) {
     const images = message.attachments.map(_ => ({
@@ -44,11 +49,9 @@ async function scrap(message) {
         timestamp: message.createdTimestamp,
         url: _.url,
         width: _.width,
-        height: _.height
+        height: _.height,
     }))
-    insertDB(images, message.channel.guild.id)
-    .catch(err => console.log(err))
+    insertDB(images, message.channel.guild.id).catch(err => console.log(err))
 }
-
 
 module.exports = scrap

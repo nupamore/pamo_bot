@@ -11,10 +11,12 @@ export default new Vuex.Store({
     getters: {
         userInfo: state => state.userInfo,
         serverList(state) {
-            return state.userInfo.guilds?.map(guild => ({
-               value: guild.id,
-               label: guild.name,
-               src: `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.jpg`,
+            const guilds = state.userInfo.guilds
+            if (!guilds) return false
+            return guilds.map(guild => ({
+                value: guild.id,
+                label: guild.name,
+                src: `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.jpg`,
             }))
         },
     },
@@ -30,7 +32,7 @@ export default new Vuex.Store({
             state.commit('userInfo', data)
         },
         logout(state) {
-            location.href = '/logout'    
+            location.href = '/logout'
         },
     },
 })

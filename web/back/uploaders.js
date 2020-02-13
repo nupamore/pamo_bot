@@ -1,4 +1,3 @@
-
 const mysql = require('mysql2/promise')
 const CONFIG = require('./../../config.json')
 
@@ -13,9 +12,9 @@ const QUERY = `
 
 /**
  * Get image list
- * 
- * @param {Object} req 
- * @param {Object} res 
+ *
+ * @param {Object} req
+ * @param {Object} res
  */
 module.exports = async function uploaders(req, res) {
     const galleryId = req.query.galleryId
@@ -24,8 +23,7 @@ module.exports = async function uploaders(req, res) {
         const [rows] = await connection.query(QUERY, galleryId)
         res.send(rows)
         connection.release()
-    }
-    catch (err) {
+    } catch (err) {
         res.sendStatus(400)
         connection.release()
     }

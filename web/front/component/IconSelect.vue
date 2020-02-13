@@ -17,12 +17,23 @@
 </template>
 
 <style lang="scss">
-    .el-select-dropdown__item { 
-        height: 46px; line-height: 46px; 
-        .el-avatar { float: left; margin: 3px 0; }
-        .name { float: left; margin-left: 10px; }
-        .sub { float: right; font-size: 0.8em; opacity: .8; }
+.el-select-dropdown__item {
+    height: 46px;
+    line-height: 46px;
+    .el-avatar {
+        float: left;
+        margin: 3px 0;
     }
+    .name {
+        float: left;
+        margin-left: 10px;
+    }
+    .sub {
+        float: right;
+        font-size: 0.8em;
+        opacity: 0.8;
+    }
+}
 </style>
 
 <script>
@@ -45,7 +56,7 @@ export default {
     methods: {
         onSelect() {
             this.$emit('change', this.value)
-        }
+        },
     },
 }
 </script>

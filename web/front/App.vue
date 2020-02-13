@@ -9,7 +9,10 @@
 </template>
 
 <style lang="scss">
-    .el-container { max-width: 1600px; margin: 0 auto; }
+.el-container {
+    max-width: 1600px;
+    margin: 0 auto;
+}
 </style>
 
 <script>
@@ -17,7 +20,7 @@ import TopNav from 'component/TopNav'
 
 export default {
     components: {
-        TopNav
+        TopNav,
     },
 }
 </script>

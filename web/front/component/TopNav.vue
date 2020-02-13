@@ -25,12 +25,25 @@
 </template>
 
 <style lang="scss">
-    .btn-profile {
-        max-width: 180px; font-size: 20px; margin: 0 0 0 auto;
-        .el-image { float: left; width: 50px; height: 50px; margin: 4px 10px; }
-        .name { font-size: 18px; line-height: 2em; }
-        .code { font-size: 12px; line-height: 1em; }
+.btn-profile {
+    max-width: 180px;
+    margin: 0 0 0 auto;
+    font-size: 20px;
+    .el-image {
+        float: left;
+        width: 50px;
+        height: 50px;
+        margin: 4px 10px;
     }
+    .name {
+        font-size: 18px;
+        line-height: 2em;
+    }
+    .code {
+        font-size: 12px;
+        line-height: 1em;
+    }
+}
 </style>
 
 <script>
@@ -56,20 +69,21 @@ export default {
         },
     },
     watch: {
-        $route (to, from){
+        $route(to, from) {
             this.findActiveIndex()
-        }
+        },
     },
     methods: {
         findActiveIndex() {
-            this.activeIndex = menuList.find(item => item.route === this.$route.path).index
+            this.activeIndex = menuList.find(
+                item => item.route === this.$route.path,
+            ).index
         },
         login() {
-            location.href = "/auth/discord"
+            location.href = '/auth/discord'
         },
         logout() {
-            this.$confirm('Are you sure logout?')
-            .then(() => {
+            this.$confirm('Are you sure logout?').then(() => {
                 this.$store.dispatch('logout')
             })
         },

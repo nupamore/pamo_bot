@@ -36,17 +36,26 @@
 </template>
 
 <style lang="scss">
-@import "./../_vars.scss";
+@import './../_vars.scss';
 
-.photo-list { font-size: 0; }
-.el-pager li.active { color: #fff; background: #409EFF; }
+.photo-list {
+    font-size: 0;
+}
+.el-pager li.active {
+    color: #fff;
+    background: #409eff;
+}
 .el-image-viewer__video {
     @include vCenter;
-    visibility: hidden;
-    max-width: 1280px;
     z-index: 2001;
+    max-width: 1280px;
+    visibility: hidden;
     opacity: 0;
-    &.show { visibility: visible; opacity: 1; transition: 0.5s; }
+    &.show {
+        visibility: visible;
+        opacity: 1;
+        transition: 0.5s;
+    }
 }
 </style>
 
@@ -68,7 +77,7 @@ export default {
             uploaderList: [],
             imageList: [],
             currentPage: 1,
-            pageTotal : 0,
+            pageTotal: 0,
             videoSrc: '',
         }
     },
@@ -80,8 +89,11 @@ export default {
     },
     methods: {
         toThumb(url) {
-            const media = url.replace('cdn.discordapp.com', 'media.discordapp.net')
-            return (/(mp4)$/.test(url))
+            const media = url.replace(
+                'cdn.discordapp.com',
+                'media.discordapp.net',
+            )
+            return /(mp4)$/.test(url)
                 ? media + '?format=jpeg&width=400&height=225'
                 : media + '?width=400&height=225'
         },
@@ -90,7 +102,9 @@ export default {
         },
         async getImageList(page) {
             this.currentPage = page
-            const res = await fetch(`/images?galleryId=${this.serverId}&owner=${this.uploaderId}&page=${this.currentPage}`)
+            const res = await fetch(
+                `/images?galleryId=${this.serverId}&owner=${this.uploaderId}&page=${this.currentPage}`,
+            )
             const data = await res.json()
             this.imageList = data.images.map(image => ({
                 name: image.OWNER,
@@ -114,7 +128,10 @@ export default {
                 sub: item.amount,
             }))
             const sum = data.reduce((p, n) => p + n.amount, 0)
-            this.uploaderList = [{ value: 'All', label: 'All', sub: sum }, ...uploaderList]
+            this.uploaderList = [
+                { value: 'All', label: 'All', sub: sum },
+                ...uploaderList,
+            ]
         },
         onUploaderSelect(uploaderId) {
             this.uploaderId = uploaderId
@@ -123,11 +140,13 @@ export default {
         async onDeleteImage(originUrl) {
             const res = await fetch('/image', {
                 method: 'delete',
-                headers: { 'Content-Type': 'application/json', },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ originUrl, serverId: this.serverId }),
             })
             if (await res.json()) {
-                this.imageList = this.imageList.filter(img => img.origin !== originUrl)
+                this.imageList = this.imageList.filter(
+                    img => img.origin !== originUrl,
+                )
             }
         },
         onShowVideo(url) {
@@ -140,6 +159,6 @@ export default {
             this.$refs.video.pause()
             this.$refs.video.currentTime = 0
         },
-    }
+    },
 }
 </script>

@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import ElementUI from 'element-ui'
-import 'element-ui/lib/theme-chalk/index.css';
+import 'element-ui/lib/theme-chalk/index.css'
 
 import './common.scss'
 import store from './store/store.js'
@@ -16,13 +16,14 @@ import P_PhotoArchive from 'view/P_PhotoArchive.vue'
 
 const router = new VueRouter({
     mode: 'history',
-    routes: [{
+    routes: [
+        {
             path: '/sdl',
-            component: SimpleDynamicLink
+            component: SimpleDynamicLink,
         },
         {
             path: '/photo',
-            component: PhotoArchive
+            component: PhotoArchive,
         },
     ],
 })
@@ -39,5 +40,5 @@ new Vue({
         if (router.currentRoute.path === '/') {
             router.replace('/photo')
         }
-    }
+    },
 })

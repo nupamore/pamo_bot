@@ -1,4 +1,3 @@
-
 const mysql = require('mysql2/promise')
 const CONFIG = require('./../config.json')
 
@@ -11,7 +10,7 @@ const query = `
 
 /**
  * Send random image
- * 
+ *
  * @param {Object} message
  */
 async function image(message) {
@@ -20,18 +19,15 @@ async function image(message) {
         const [rows] = await connection.query(query, message.channel.guild.id)
         if (!rows.length) {
             message.channel.send('Not supported this group')
-        }
-        else {
+        } else {
             message.channel.send('', { files: [rows[0].ORIGIN_URL] })
         }
         connection.release()
-    }
-    catch (err) {
+    } catch (err) {
         message.channel.send(`DB error`)
         connection.release()
     }
 }
 
-
 image.comment = `!image - Show a random image`
-module.exports = image;
+module.exports = image
