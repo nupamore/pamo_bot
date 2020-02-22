@@ -51,13 +51,13 @@ function crawl(message, args) {
     const work =
         {
             on() {
-                guild.addScrapChannel(message.guild.id, message.channel.id)
+                guild.addScrapChannel(message)
                 message.channel.send(
                     `I'm watching the pictures coming up on this channel! ＾ｐ＾`,
                 )
             },
             off() {
-                guild.removeScrapChannel(message.guild.id, message.channel.id)
+                guild.removeScrapChannel(message)
                 message.channel.send(
                     `I'm gonna stop watching, but you have to erase it yourself. (^^;)`,
                 )

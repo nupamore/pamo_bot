@@ -17,7 +17,9 @@ const QUERY = {
     UPDATE: `
         UPDATE discord_guilds SET 
             status = ?, 
-            scrap_channel_id = ?
+            scrap_channel_id = ?,
+            mod_user = ?,
+            mod_date = NOW()
         WHERE guild_id = ?
     `,
 }
@@ -30,14 +32,15 @@ const scrapChannels = new Set()
  * @param {String} guildId
  * @param {String} channelId
  */
-async function addScrapChannel(guildId, channelId) {
-    scrapChannels.add(channelId)
+async function addScrapChannel(message) {
+    scrapChannels.add(message.channel.id)
     const connection = await pool.getConnection(async conn => conn)
     try {
         const [rows] = await connection.query(QUERY.UPDATE, [
             'WATCH',
-            channelId,
-            guildId,
+            message.channel.id,
+            message.author.id,
+            message.guild.id,
         ])
         connection.release()
         return true
@@ -51,14 +54,15 @@ async function addScrapChannel(guildId, channelId) {
  * @param {String} guildId
  * @param {String} channelId
  */
-async function removeScrapChannel(guildId, channelId) {
-    scrapChannels.delete(channelId)
+async function removeScrapChannel(message) {
+    scrapChannels.delete(message.channel.id)
     const connection = await pool.getConnection(async conn => conn)
     try {
         const [rows] = await connection.query(QUERY.UPDATE, [
             'STOP',
             null,
-            guildId,
+            message.author.id,
+            message.guild.id,
         ])
         connection.release()
         return true
