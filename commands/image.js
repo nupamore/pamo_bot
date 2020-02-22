@@ -3,8 +3,9 @@ const CONFIG = require('./../config.json')
 
 const pool = mysql.createPool(CONFIG.db)
 const query = `
-    SELECT ORIGIN_URL FROM images
-    WHERE GROUP_ID = ?
+    SELECT channel_id, file_id, file_name
+    FROM discord_images
+    WHERE guild_id = ?
     ORDER BY rand() limit 1;
 `
 
@@ -14,13 +15,15 @@ const query = `
  * @param {Object} message
  */
 async function image(message) {
+    const connection = await pool.getConnection(async conn => conn)
     try {
-        const connection = await pool.getConnection(async conn => conn)
-        const [rows] = await connection.query(query, message.channel.guild.id)
+        const [rows] = await connection.query(query, message.guild.id)
         if (!rows.length) {
             message.channel.send('Not supported this group')
         } else {
-            message.channel.send('', { files: [rows[0].ORIGIN_URL] })
+            const { channel_id, file_id, file_name } = rows[0]
+            const url = `https://cdn.discordapp.com/attachments/${channel_id}/${file_id}/${file_name}`
+            message.channel.send('', { files: [url] })
         }
         connection.release()
     } catch (err) {

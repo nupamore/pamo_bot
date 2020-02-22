@@ -6,7 +6,7 @@ const QUERY = {
     CREATE: `
         INSERT INTO discord_images (
             file_id, file_name, owner_name, owner_id, owner_avatar, 
-            group_id, channel_id, width, height, reg_date, archive_date
+            guild_id, channel_id, width, height, reg_date, archive_date
         )
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, TIMESTAMP(?), NOW());
     `,
