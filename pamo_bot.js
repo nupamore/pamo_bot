@@ -3,20 +3,24 @@ const CONFIG = require('./config.json')
 const client = new Discord.Client()
 
 /**
+ * Modules
+ */
+const guild = require('./module/guild')
+
+/**
  * Functions list
  * Create new functions and put in this array
  */
 const f = {
     translate: require('./commands/translate'),
+    image: require('./commands/image'),
     dice: require('./commands/dice'),
     crawl: require('./commands/crawl'),
-    image: require('./commands/image'),
-    test: require('./commands/test'),
     scrap: require('./commands/scrap'),
 }
 
 /**
- * Default functions
+ * Default commands
  * @param {object} message
  */
 function commandList(message) {
@@ -24,7 +28,8 @@ function commandList(message) {
         .filter(_ => _.comment)
         .map(_ => _.comment)
     message.channel.send(
-        'https://vrc.nupa.moe\n' + comments.reduce((p, n) => `${p}\n${n}`, ''),
+        'Photo Archive: https://vrc.nupa.moe\n' +
+            comments.reduce((p, n) => `${p}\n${n}`, ''),
     )
 }
 async function noCommand(message) {
@@ -33,26 +38,55 @@ async function noCommand(message) {
 }
 
 /**
+ * Realtime scraping
+ */
+function crawl(message, args) {
+    // master only
+    if (message.author.id != message.guild.ownerID) {
+        message.channel.send(
+            `You don't have permission. Contact the server master`,
+        )
+        return
+    }
+    const work =
+        {
+            on() {
+                guild.addScrapChannel(message.guild.id, message.channel.id)
+                message.channel.send(
+                    `I'm watching the pictures coming up on this channel! ＾ｐ＾`,
+                )
+            },
+            off() {
+                guild.removeScrapChannel(message.guild.id, message.channel.id)
+                message.channel.send(
+                    `I'm gonna stop watching, but you have to erase it yourself. (^^;)`,
+                )
+            },
+            past() {
+                message.channel.send(`Yay! Past investigation! ≖‿≖`)
+                f.crawl(message)
+            },
+        }[args[0]] || (() => noCommand(message))
+    work()
+}
+
+/**
  * Bot login
  */
 client.on('ready', () => {
+    guild.addGuildInfo(client.guilds)
+    client.user.setActivity(CONFIG.discord.status)
     console.log(
         `Bot has started, with ${client.users.size} users, in ${client.channels.size} channels of ${client.guilds.size} guilds.`,
     )
-    client.user.setActivity(CONFIG.discord.status)
 })
 
 /**
  * Request message
  */
-const scrapChannels = [
-    '507170212353933312', // VRCHAT
-    '661086194238488616', // CHUYO
-    '662309945131139107', // ITTA
-]
 client.on('message', message => {
     if (message.author.bot) return
-    if (scrapChannels.includes(message.channel.id) && message.attachments.size)
+    if (guild.scrapChannels.has(message.channel.id) && message.attachments.size)
         f.scrap(message)
     if (message.content === CONFIG.discord.prefix) return
     if (message.content.indexOf(CONFIG.discord.prefix) !== 0) return
@@ -60,15 +94,17 @@ client.on('message', message => {
     const args = message.content
         .slice(CONFIG.discord.prefix.length)
         .trim()
+        .toLowerCase()
         .split(/\s+/g)
-    const command = args.shift().toLowerCase()
+    const command = args.shift()
     message._ = { text: args.join(' ') }
 
     // Connect functions to custom command
     const func =
         {
             help: () => commandList(message),
-            crawl: () => f.crawl(message),
+            command: () => commandList(message),
+            crawl: () => crawl(message, args),
             dice: () => f.dice(message),
             image: () => f.image(message),
             test: () => f.test(message),
@@ -94,4 +130,10 @@ client.on('message', message => {
     func()
 })
 
-client.login(CONFIG.discord.token)
+/**
+ * Init
+ */
+;(async () => {
+    await guild.init()
+    client.login(CONFIG.discord.token)
+})()

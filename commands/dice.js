@@ -1,10 +1,12 @@
+const CONFIG = require('./../config.json')
+
 /**
  * Send random number
  *
  * @param {Object} message
  */
 function dice(message) {
-    const max = message._.text * 1 || 100
+    const max = message._.text * 1 || 6
     if (!Number.isInteger(max)) {
         message.channel.send(`What?`)
         return
@@ -14,5 +16,6 @@ function dice(message) {
     message.channel.send(`${number} / ${max}`)
 }
 
-dice.comment = `!dice 6 - Get random number (default: 100)`
+dice.comment =
+    `***${CONFIG.discord.prefix}dice 6***` + ` - Get random number (default: 6)`
 module.exports = dice

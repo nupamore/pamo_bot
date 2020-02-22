@@ -29,5 +29,5 @@ async function image(message) {
     }
 }
 
-image.comment = `!image - Show a random image`
+image.comment = `***${CONFIG.discord.prefix}image***` + ` - Show a random image`
 module.exports = image

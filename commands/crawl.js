@@ -1,43 +1,6 @@
 const request = require('request')
-const mysql = require('mysql2/promise')
 const CONFIG = require('./../config.json')
-
-const pool = mysql.createPool(CONFIG.db)
-const query = `
-    INSERT INTO images (ORIGIN_URL, OWNER, GROUP_ID, WIDTH, HEIGHT, REG_DATE, ARCHIVE_DATE)
-    VALUES (?, ?, ?, ?, ?, DATE_ADD(TIMESTAMP(?), INTERVAL 9 HOUR), NOW());
-`
-
-/**
- * Insert images to Databsse
- *
- * @param {Array} images
- * @param {String} groupId
- */
-async function insertDB(images, groupId) {
-    const promises = images.map(async image => {
-        const connection = await pool.getConnection(async conn => conn)
-        const { user, timestamp, url, width, height } = image
-        try {
-            const [rows] = await connection.query(query, [
-                url,
-                user,
-                groupId,
-                width,
-                height,
-                new Date(timestamp),
-            ])
-            connection.release()
-            return 1
-        } catch (err) {
-            // console.log(err)
-            connection.release()
-            return 0
-        }
-    })
-
-    return Promise.all(promises)
-}
+const insertImage = require('../module/insertImage')
 
 /**
  * Request logs
@@ -64,15 +27,18 @@ function parse(guild, channel, page) {
                     .reduce((p, n) => p.concat(n), [])
                     .filter(_ => _.attachments.length)
                     .map(_ => ({
-                        user: _.author.username,
-                        timestamp: _.timestamp,
-                        url: _.attachments[0].url,
-                        width: _.attachments[0].width,
-                        height: _.attachments[0].height,
+                        userId: _.author.id,
+                        userName: _.author.username,
+                        userAvatar: _.author.avatar,
+                        fileId: _.attachments[0].id,
+                        filename: _.attachments[0].filename,
+                        fileWidth: _.attachments[0].width,
+                        fileHeight: _.attachments[0].height,
+                        timestamp: new Date(_.timestamp),
                     }))
                 resolve(images)
             } else {
-                reject(response.statusCode)
+                reject(body)
             }
         })
     })
@@ -84,9 +50,11 @@ function parse(guild, channel, page) {
  * @param {Object} message
  */
 async function crawl(message) {
-    // nupamo only
-    if (message.author.id != 314029849562054666) {
-        message.channel.send(`何だお前`)
+    // master only
+    if (message.author.id != message.guild.ownerID) {
+        message.channel.send(
+            `You don't have permission. Contact the server master`,
+        )
         return
     }
 
@@ -99,13 +67,39 @@ async function crawl(message) {
     Promise.all(promises)
         .then(outputs => {
             const images = outputs.reduce((p, n) => p.concat(n), [])
-            return insertDB(images, message.channel.guild.id)
+            return insertImage(
+                images,
+                message.channel.id,
+                message.channel.guild.id,
+            )
         })
         .then(success => {
             const count = success.reduce((p, n) => p + n)
-            message.channel.send(`Crawled new images: ${count}`)
+            try {
+                message.channel.send(`Crawled new images: ${count}`)
+            } catch (err) {
+                console.log(`Crawled new images: ${count}`)
+            }
         })
-        .catch(err => console.log(err))
+        .catch(err => console.error(err))
 }
 
+/**
+ * manual crawling
+ */
+// ;(() => {
+//     crawl({
+//         author: { id: 0 },
+//         channel: {
+//             id: '',
+//             guild: { id: '' },
+//         },
+//     })
+// })()
+
+crawl.comment =
+    `***${CONFIG.discord.prefix}crawl past***` +
+    ` - Crawling past images of this channel\n` +
+    `***${CONFIG.discord.prefix}crawl on***` +
+    ` - The bot start real-time crawling`
 module.exports = crawl
