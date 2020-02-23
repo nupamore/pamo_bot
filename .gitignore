@@ -1,12 +1,10 @@
 
 dist
-yarn.lock
 .cache
 config.json
 package-lock.json
 images.json
 *.map
-.lock
 
 # Logs
 logs
