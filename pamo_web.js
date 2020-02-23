@@ -44,10 +44,10 @@ app.get('/uploaders', uploaders)
 app.get('/profile', profile)
 app.get('/randomImage/:serverId', (req, res) => {
     randomImage({
+        guild: {
+            id: req.params.serverId,
+        },
         channel: {
-            guild: {
-                id: req.params.serverId,
-            },
             send(str, data) {
                 if (data) res.redirect(data.files[0])
                 else res.send(str)
