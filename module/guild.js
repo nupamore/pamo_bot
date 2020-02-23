@@ -35,17 +35,37 @@ const scrapChannels = new Set()
 async function addScrapChannel(message) {
     scrapChannels.add(message.channel.id)
     const connection = await pool.getConnection(async conn => conn)
-    try {
-        const [rows] = await connection.query(QUERY.UPDATE, [
-            'WATCH',
-            message.channel.id,
-            message.author.id,
-            message.guild.id,
-        ])
-        connection.release()
-        return true
-    } catch (err) {
-        connection.release()
+
+    if (guildsList.get(message.guild.id)) {
+        try {
+            const [rows] = await connection.query(QUERY.UPDATE, [
+                'WATCH',
+                message.channel.id,
+                message.author.id,
+                message.guild.id,
+            ])
+            connection.release()
+            return true
+        } catch (err) {
+            connection.release()
+        }
+    } else {
+        // hotfix
+        try {
+            await connection.query(QUERY.CREATE, [
+                message.guild.id,
+                message.guild.name,
+                message.channel.id,
+                'WATCH',
+                message.guild.ownerID,
+                message.guild.ownerID,
+            ])
+            console.log(`New guild: ${message.guild.name}`)
+            connection.release()
+        } catch (err) {
+            console.log(err)
+            connection.release()
+        }
     }
 }
 

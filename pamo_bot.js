@@ -82,6 +82,12 @@ client.on('ready', () => {
 })
 
 /**
+ * Join Event
+ */
+client.on('guildCreate', guild => {})
+client.on('guildDelete', guild => {})
+
+/**
  * Request message
  */
 client.on('message', message => {
