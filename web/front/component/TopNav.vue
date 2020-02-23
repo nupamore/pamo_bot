@@ -1,6 +1,6 @@
 <template lang="pug">
     el-row
-        el-col(:sm="20" :md="21")
+        el-col(:xs="12" :sm="20" :md="21")
             el-menu(
                 :default-active="activeIndex"
                 mode="horizontal"
@@ -11,7 +11,7 @@
                     :index="item.index"
                     :route="item.route"
                 ) {{ item.name }}
-        el-col(:sm="4" :md="3")
+        el-col(:xs="12" :sm="4" :md="3")
             el-menu(v-if="!userInfo.id")
                 el-menu-item.btn-profile(@click="login")
                     el-image(fit="cover" src="https://discordapp.com/assets/f8389ca1a741a115313bede9ac02e2c0.svg")

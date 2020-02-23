@@ -1,4 +1,6 @@
-html {
+html,
+body {
+  font-size: 15px;
   font-family: "PingFang TC", "メイリオ", "Noto Sans Korean", sans-serif;
 }
 
@@ -14,4 +16,12 @@ html {
 .center {
   margin: 0 auto;
   text-align: center;
+}
+
+@media screen and (max-width: 768px) {
+  html,
+  body {
+    margin: 0;
+    font-size: 10px;
+  }
 }

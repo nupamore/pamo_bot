@@ -26,6 +26,9 @@
 
 <style lang="scss">
 @import './../_vars.scss';
+
+$icon-size: 7rem;
+
 .photo-card {
     position: relative;
     display: block;
@@ -35,10 +38,10 @@
     &.video .el-icon-video-play {
         @include vCenter;
         top: -10px;
-        width: 100px;
-        height: 100px;
+        width: $icon-size;
+        height: $icon-size;
         color: #fff;
-        font-size: 100px;
+        font-size: $icon-size;
         opacity: 0.8;
         filter: drop-shadow(0px 0px 6px rgba(1, 1, 1, 0.5));
         pointer-events: none;
@@ -46,6 +49,9 @@
     .el-image {
         width: 100%;
         height: 260px;
+        @media screen and (max-width: 768px) {
+            height: 35vw;
+        }
         & > img {
             cursor: pointer;
         }
@@ -54,8 +60,8 @@
             color: #aaa;
             text-align: center;
             .el-icon-error {
-                font-size: 100px;
-                line-height: 250px;
+                font-size: $icon-size;
+                line-height: #{$icon-size * 2.5};
             }
         }
     }
@@ -64,14 +70,14 @@
         bottom: 0;
         width: 100%;
         color: #fff;
-        font-size: 16px;
+        font-size: 1.1rem;
         background: rgba(0, 0, 0, 0.5);
         .left {
-            padding: 12px;
+            padding: 0.6em;
             opacity: 0.8;
         }
         .right {
-            padding: 12px;
+            padding: 0.6em;
             opacity: 0.5;
         }
         button {
