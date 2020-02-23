@@ -15,9 +15,14 @@
             el-menu(v-if="!userInfo.id")
                 el-menu-item.btn-profile(@click="login")
                     el-image(fit="cover" src="https://discordapp.com/assets/f8389ca1a741a115313bede9ac02e2c0.svg")
-                    .login Login
+                    .login {{ $t('UI.LOGIN') }}
             el-menu(v-else)
-                el-popconfirm(title="Are you sure to logout?" @onConfirm="logout")
+                el-popconfirm(
+                    :title="$t('UI.QUESTION.LOGOUT')"
+                    :confirmButtonText="$t('UI.CONFIRM')"
+                    :cancelButtonText="$t('UI.CANCEL')"
+                    @onConfirm="logout"
+                )
                     el-menu-item.btn-profile(slot="reference")
                         el-image(fit="cover" :src="`https://cdn.discordapp.com/avatars/${ userInfo.id }/${ userInfo.avatar }.jpg`")
                         .name {{ userInfo.username }}
@@ -48,7 +53,7 @@
 
 <script>
 const menuList = [
-    { index: '1', route: '/sdl', name: 'Simple Dynamic Link' },
+    // { index: '1', route: '/sdl', name: 'Simple Dynamic Link' },
     { index: '2', route: '/photo', name: 'Photo Archive' },
 ]
 
@@ -83,14 +88,12 @@ export default {
             location.href = '/auth/discord'
         },
         logout() {
-            this.$confirm('Are you sure logout?').then(() => {
-                this.$store.dispatch('logout')
-            })
+            this.$store.dispatch('logout')
         },
     },
     created() {
         this.findActiveIndex()
-        this.$store.dispatch('userInfo')
+        this.$store.dispatch('getUserInfo')
     },
 }
 </script>

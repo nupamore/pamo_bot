@@ -2,10 +2,12 @@ const mysql = require('mysql2/promise')
 const CONFIG = require('./../../config.json')
 
 const pool = mysql.createPool(CONFIG.db)
-const QUERY = `
-    SELECT DISTINCT group_id
-    FROM images
-`
+const QUERY = {
+    READ: `
+        SELECT DISTINCT guild_id
+        FROM discord_images
+    `,
+}
 
 /**
  * Get image list
@@ -16,8 +18,8 @@ const QUERY = `
 module.exports = async function profile(req, res) {
     const connection = await pool.getConnection(async conn => conn)
     try {
-        const [rows] = await connection.query(QUERY)
-        const list = rows.map(row => row.group_id)
+        const [rows] = await connection.query(QUERY.READ)
+        const list = rows.map(row => row.guild_id)
         const {
             id,
             username,

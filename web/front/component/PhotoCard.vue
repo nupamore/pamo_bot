@@ -11,11 +11,13 @@
             .image-slot(slot="error")
                 i.el-icon-error
         .description
-            .left {{ item.name }}
+            .left {{ item.userName }}
             .right {{ item.date }}
             el-popconfirm(
                 v-if="hasPermission"
-                title="Are you sure to delete this?"
+                :title="$t('UI.QUESTION.DELETE')"
+                :confirmButtonText="$t('UI.CONFIRM')"
+                :cancelButtonText="$t('UI.CANCEL')"
                 @onConfirm="onDeleteClick"
             )
                 el-button(slot="reference" icon="el-icon-close" v-on:click.prevent="")
@@ -126,7 +128,9 @@ export default {
             const server = userInfo.guilds.find(
                 server => server.id === this.item.serverId,
             )
-            return server.permissions === 2147483647
+            const isMaster = server.permissions === 2147483647
+            const isMine = this.item.userId === userInfo.id
+            return isMaster || isMine
         },
     },
     methods: {
@@ -134,7 +138,7 @@ export default {
             return /mp4$/.test(url)
         },
         onDeleteClick() {
-            this.$emit('deleteClick', this.item.origin)
+            this.$emit('deleteClick', this.item)
         },
         onImageClick() {
             const imageViewer = this.$children[0].$children[0]

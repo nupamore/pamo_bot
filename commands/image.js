@@ -1,5 +1,6 @@
 const mysql = require('mysql2/promise')
 const CONFIG = require('./../config.json')
+const { imgUrl } = require('./../module/filters')
 
 const pool = mysql.createPool(CONFIG.db)
 const query = `
@@ -22,7 +23,7 @@ async function image(message) {
             message.channel.send('Not supported this group')
         } else {
             const { channel_id, file_id, file_name } = rows[0]
-            const url = `https://cdn.discordapp.com/attachments/${channel_id}/${file_id}/${file_name}`
+            const url = imgUrl(channel_id, file_id, file_name)
             message.channel.send('', { files: [url] })
         }
         connection.release()

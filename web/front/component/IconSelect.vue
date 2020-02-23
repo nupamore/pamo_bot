@@ -30,6 +30,7 @@
     }
     .sub {
         float: right;
+        margin-left: 10px;
         font-size: 0.8em;
         opacity: 0.8;
     }

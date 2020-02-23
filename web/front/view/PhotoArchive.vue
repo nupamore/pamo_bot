@@ -1,8 +1,17 @@
 <template lang="pug">
     div
-        icon-select(placeholder="Select a group" :list="serverList" @change="onServerSelect")
+        icon-select(
+            :placeholder="$t('UI.PLACEHOLDER.SELECT_DISCORD_SERVER')" 
+            :list="serverList" 
+            @change="onServerSelect"
+        )
         i.el-breadcrumb__separator.el-icon-arrow-right
-        icon-select(placeholder="Select a user" :current="uploaderId" :list="uploaderList" @change="onUploaderSelect")
+        icon-select(
+            :placeholder="$t('UI.PLACEHOLDER.SELECT_UPLOADER')"  
+            :current="uploaderId" 
+            :list="uploaderList" 
+            @change="onUploaderSelect"
+        )
         .divider
         el-row.photo-list
             el-col(
@@ -64,6 +73,7 @@ import dayjs from 'dayjs'
 import { mapGetters } from 'vuex'
 import IconSelect from 'component/IconSelect.vue'
 import PhotoCard from 'component/PhotoCard.vue'
+import filters from 'module/filters'
 
 export default {
     components: {
@@ -88,31 +98,28 @@ export default {
         },
     },
     methods: {
-        toThumb(url) {
-            const media = url.replace(
-                'cdn.discordapp.com',
-                'media.discordapp.net',
-            )
-            return /(mp4)$/.test(url)
-                ? media + '?format=jpeg&width=400&height=225'
-                : media + '?width=400&height=225'
-        },
-        toOrigin(url) {
-            return url.replace('media.discordapp.net', 'cdn.discordapp.com')
-        },
         async getImageList(page) {
             this.currentPage = page
             const res = await fetch(
                 `/images?galleryId=${this.serverId}&owner=${this.uploaderId}&page=${this.currentPage}`,
             )
             const data = await res.json()
-            this.imageList = data.images.map(image => ({
-                name: image.OWNER,
-                serverId: this.serverId,
-                date: dayjs(image.REG_DATE).format('YYYY-MM-DD'),
-                origin: image.ORIGIN_URL,
-                thumb: this.toThumb(image.ORIGIN_URL),
-            }))
+            this.imageList = data.images.map(image => {
+                const imgUrl = filters.imgUrl(
+                    image.channel_id,
+                    image.file_id,
+                    image.file_name,
+                )
+                return {
+                    userName: image.owner_name,
+                    userId: image.owner_id,
+                    serverId: this.serverId,
+                    fileId: image.file_id,
+                    date: dayjs(image.reg_date).format('YYYY-MM-DD'),
+                    origin: imgUrl,
+                    thumb: filters.origin2Thumb(imgUrl),
+                }
+            })
             this.pageTotal = data.total || this.pageTotal
         },
         async onServerSelect(serverId) {
@@ -123,8 +130,9 @@ export default {
             const res = await fetch(`/uploaders?galleryId=${this.serverId}`)
             const data = await res.json()
             const uploaderList = data.map(item => ({
-                value: item.owner,
-                label: item.owner,
+                value: item.owner_id,
+                label: item.owner_name,
+                src: filters.avatarUrl(item.owner_id, item.owner_avatar),
                 sub: item.amount,
             }))
             const sum = data.reduce((p, n) => p + n.amount, 0)
@@ -137,15 +145,15 @@ export default {
             this.uploaderId = uploaderId
             this.getImageList(1)
         },
-        async onDeleteImage(originUrl) {
+        async onDeleteImage(item) {
             const res = await fetch('/image', {
                 method: 'delete',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ originUrl, serverId: this.serverId }),
+                body: JSON.stringify(item),
             })
             if (await res.json()) {
                 this.imageList = this.imageList.filter(
-                    img => img.origin !== originUrl,
+                    img => img.fileId !== item.fileId,
                 )
             }
         },

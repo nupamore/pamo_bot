@@ -5,16 +5,16 @@ const pool = mysql.createPool(CONFIG.db)
 const QUERY = {
     GET_IMAGES_COUNT: `
         SELECT COUNT(*) total
-        FROM images
-        WHERE GROUP_ID = ?
-            AND OWNER LIKE ?
+        FROM discord_images
+        WHERE guild_id = ?
+            AND owner_id LIKE ?
     `,
     GET_IMAGES_INFO: `
-        SELECT ORIGIN_URL, OWNER, REG_DATE 
-        FROM images
-        WHERE GROUP_ID = ?
-            AND OWNER LIKE ?
-        ORDER BY REG_DATE DESC
+        SELECT channel_id, file_id, file_name, owner_id, owner_name, owner_avatar, reg_date
+        FROM discord_images
+        WHERE guild_id = ?
+            AND owner_id LIKE ?
+        ORDER BY reg_date DESC
         LIMIT 12 OFFSET ?
     `,
 }

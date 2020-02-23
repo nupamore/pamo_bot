@@ -12,7 +12,7 @@ export default new Vuex.Store({
         userInfo: state => state.userInfo,
         serverList(state) {
             const guilds = state.userInfo.guilds
-            if (!guilds) return false
+            if (!guilds) return []
             return guilds.map(guild => ({
                 value: guild.id,
                 label: guild.name,
@@ -21,15 +21,15 @@ export default new Vuex.Store({
         },
     },
     mutations: {
-        userInfo(state, info) {
+        SET_USER_INFO(state, info) {
             state.userInfo = info
         },
     },
     actions: {
-        async userInfo(state) {
+        async getUserInfo(state) {
             const res = await fetch('/profile')
             const data = await res.json()
-            state.commit('userInfo', data)
+            state.commit('SET_USER_INFO', data)
         },
         logout(state) {
             location.href = '/logout'
