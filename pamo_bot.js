@@ -74,7 +74,12 @@ function crawl(message, args) {
  * Bot login
  */
 client.on('ready', () => {
-    guild.addGuildInfo(client.guilds)
+    if (client.guilds.size !== guild.guildsList.size) {
+        client.guilds.forEach(g => {
+            if (guild.guildsList.get(g.id)) return
+            guild.addGuildInfo(g)
+        })
+    }
     client.user.setActivity(CONFIG.discord.status)
     console.log(
         `Bot has started, with ${client.users.size} users, in ${client.channels.size} channels of ${client.guilds.size} guilds.`,
@@ -84,8 +89,12 @@ client.on('ready', () => {
 /**
  * Join Event
  */
-client.on('guildCreate', guild => {})
-client.on('guildDelete', guild => {})
+client.on('guildCreate', g => {
+    guild.addGuildInfo(g)
+})
+client.on('guildDelete', g => {
+    guild.removeGuildInfo(g.id)
+})
 
 /**
  * Request message
@@ -114,10 +123,11 @@ client.on('message', message => {
             dice: () => f.dice(message),
             image: () => f.image(message),
             test: () => f.test(message),
-            kj: () => f.translate(message, 'kakao', 'kr', 'jp'),
-            jk: () => f.translate(message, 'kakao', 'jp', 'kr'),
-            ke: () => f.translate(message, 'kakao', 'kr', 'en'),
-            ek: () => f.translate(message, 'kakao', 'en', 'kr'),
+
+            ke: () => f.translate(message, 'nmt', 'ko', 'en'),
+            ek: () => f.translate(message, 'nmt', 'en', 'ko'),
+            kj: () => f.translate(message, 'nmt', 'ko', 'ja'),
+            jk: () => f.translate(message, 'nmt', 'ja', 'ko'),
             kc: () => f.translate(message, 'kakao', 'kr', 'cn'),
             ck: () => f.translate(message, 'kakao', 'cn', 'kr'),
             je: () => f.translate(message, 'nmt', 'ja', 'en'),
@@ -128,10 +138,11 @@ client.on('message', message => {
             kf: () => f.translate(message, 'nmt', 'ko', 'fr'),
             sk: () => f.translate(message, 'nmt', 'es', 'ko'),
             ks: () => f.translate(message, 'nmt', 'ko', 'es'),
-            ke2: () => f.translate(message, 'nmt', 'ko', 'en'),
-            ek2: () => f.translate(message, 'nmt', 'en', 'ko'),
-            kj2: () => f.translate(message, 'nmt', 'ko', 'ja'),
-            jk2: () => f.translate(message, 'nmt', 'ja', 'ko'),
+
+            kj2: () => f.translate(message, 'kakao', 'kr', 'jp'),
+            jk2: () => f.translate(message, 'kakao', 'jp', 'kr'),
+            ke2: () => f.translate(message, 'kakao', 'kr', 'en'),
+            ek2: () => f.translate(message, 'kakao', 'en', 'kr'),
         }[command] || (() => noCommand(message))
     func()
 })

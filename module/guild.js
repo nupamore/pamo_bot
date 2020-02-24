@@ -22,6 +22,10 @@ const QUERY = {
             mod_date = NOW()
         WHERE guild_id = ?
     `,
+    DELETE: `
+        DELETE FROM discord_guilds
+        WHERE guild_id = ?
+    `,
 }
 
 const guildsList = new Map()
@@ -92,31 +96,41 @@ async function removeScrapChannel(message) {
 }
 
 /**
- *
- * @param {MapIterator} guilds
+ * Add guild info
+ * @param {Object} guilds
  */
-function addGuildInfo(guilds) {
-    if (guilds.size === guildsList.size) return
-    guilds.forEach(async guild => {
-        if (guildsList.get(guild.id)) return
+async function addGuildInfo(g) {
+    const connection = await pool.getConnection(async conn => conn)
+    try {
+        await connection.query(QUERY.CREATE, [
+            g.id,
+            g.name,
+            null,
+            'CREATED',
+            g.ownerID,
+            g.ownerID,
+        ])
+        console.log(`New guild: ${g.name}`)
+        connection.release()
+    } catch (err) {
+        console.log(err)
+        connection.release()
+    }
+}
 
-        const connection = await pool.getConnection(async conn => conn)
-        try {
-            await connection.query(QUERY.CREATE, [
-                guild.id,
-                guild.name,
-                null,
-                'CREATED',
-                guild.ownerID,
-                guild.ownerID,
-            ])
-            console.log(`New guild: ${guild.name}`)
-            connection.release()
-        } catch (err) {
-            console.log(err)
-            connection.release()
-        }
-    })
+/**
+ * Remove guild info
+ * @param {String} guildId
+ */
+async function removeGuildInfo(guildId) {
+    const connection = await pool.getConnection(async conn => conn)
+    try {
+        await connection.query(QUERY.DELETE, guildId)
+        connection.release()
+    } catch (err) {
+        console.log(err)
+        connection.release()
+    }
 }
 
 module.exports = {
@@ -125,6 +139,7 @@ module.exports = {
     addScrapChannel,
     removeScrapChannel,
     addGuildInfo,
+    removeGuildInfo,
     /**
      * Initial function
      */
