@@ -1,6 +1,6 @@
 {
     "name": "pamo_bot",
-    "version": "1.0.0",
+    "version": "0.1.1",
     "description": "",
     "main": "pamo_bot.js",
     "scripts": {

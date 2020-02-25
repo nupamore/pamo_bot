@@ -15,7 +15,7 @@ const f = {
     translate: require('./commands/translate'),
     image: require('./commands/image'),
     dice: require('./commands/dice'),
-    crawl: require('./commands/crawl'),
+    crawl: require('./commands/botCrawl'),
     scrap: require('./commands/scrap'),
 }
 
@@ -63,7 +63,6 @@ function crawl(message, args) {
                 )
             },
             past() {
-                message.channel.send(`Yay! Past investigation! ≖‿≖`)
                 f.crawl(message)
             },
         }[args[0]] || (() => noCommand(message))
