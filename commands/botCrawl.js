@@ -9,7 +9,7 @@ const insertImage = require('../module/insertImage')
  */
 function parse(messages) {
     return messages
-        .filter(_ => _.attachments.size)
+        .filter(_ => _.attachments.size && !_.author.bot)
         .map(_ => {
             const image = _.attachments.values().next().value
             return {
