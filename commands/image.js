@@ -1,14 +1,6 @@
-const mysql = require('mysql2/promise')
 const CONFIG = require('./../config.json')
+const db = require('./../module/db/driver')
 const { imgUrl } = require('./../module/filters')
-
-const pool = mysql.createPool(CONFIG.db)
-const query = `
-    SELECT channel_id, file_id, file_name
-    FROM discord_images
-    WHERE guild_id = ?
-    ORDER BY rand() limit 1;
-`
 
 /**
  * Send random image
@@ -16,9 +8,8 @@ const query = `
  * @param {Object} message
  */
 async function image(message) {
-    const connection = await pool.getConnection(async conn => conn)
     try {
-        const [rows] = await connection.query(query, message.guild.id)
+        const [rows] = await db('GET_RANDOM_IMAGE', message.guild.id)
         if (!rows.length) {
             message.channel.send('Not supported this group')
         } else {
@@ -26,10 +17,8 @@ async function image(message) {
             const url = imgUrl(channel_id, file_id, file_name)
             message.channel.send('', { files: [url] })
         }
-        connection.release()
     } catch (err) {
         message.channel.send(`DB error`)
-        connection.release()
     }
 }
 

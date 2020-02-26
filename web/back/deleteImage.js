@@ -1,11 +1,4 @@
-const mysql = require('mysql2/promise')
-const CONFIG = require('./../../config.json')
-
-const pool = mysql.createPool(CONFIG.db)
-const QUERY = `
-    DELETE FROM discord_images
-    WHERE file_id = ?
-`
+const db = require('./../../module/db/driver')
 
 /**
  * Delete a image
@@ -26,13 +19,10 @@ module.exports = async function deleteImage(req, res) {
     if (!isMaster && !isMine) {
         res.sendStatus(403)
     }
-    const connection = await pool.getConnection(async conn => conn)
     try {
-        const [rows] = await connection.query(QUERY, fileId)
+        const [rows] = await db('DELETE_IMAGE', fileId)
         res.send(rows)
-        connection.release()
     } catch (err) {
         res.sendStatus(400)
-        connection.release()
     }
 }

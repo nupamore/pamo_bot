@@ -1,32 +1,4 @@
-const mysql = require('mysql2/promise')
-const CONFIG = require('./../config.json')
-
-const pool = mysql.createPool(CONFIG.db)
-const QUERY = {
-    READ: `
-        SELECT guild_id, scrap_channel_id, status
-        FROM discord_guilds
-    `,
-    CREATE: `
-        INSERT INTO discord_guilds (
-            guild_id, guild_name, scrap_channel_id, status, 
-            reg_user, reg_date, mod_user, mod_date
-        )
-        VALUES (?, ?, ?, ?, ?, NOW(), ?, NOW());
-    `,
-    UPDATE: `
-        UPDATE discord_guilds SET 
-            status = ?, 
-            scrap_channel_id = ?,
-            mod_user = ?,
-            mod_date = NOW()
-        WHERE guild_id = ?
-    `,
-    DELETE: `
-        DELETE FROM discord_guilds
-        WHERE guild_id = ?
-    `,
-}
+const db = require('./db/driver')
 
 const guildsList = new Map()
 const scrapChannels = new Set()
@@ -38,25 +10,20 @@ const scrapChannels = new Set()
  */
 async function addScrapChannel(message) {
     scrapChannels.add(message.channel.id)
-    const connection = await pool.getConnection(async conn => conn)
-
     if (guildsList.get(message.guild.id)) {
         try {
-            const [rows] = await connection.query(QUERY.UPDATE, [
+            const [rows] = await db('UPDATE_GUILD', [
                 'WATCH',
                 message.channel.id,
                 message.author.id,
                 message.guild.id,
             ])
-            connection.release()
             return true
-        } catch (err) {
-            connection.release()
-        }
+        } catch (err) {}
     } else {
         // hotfix
         try {
-            await connection.query(QUERY.CREATE, [
+            await db('INSERT_GUILD', [
                 message.guild.id,
                 message.guild.name,
                 message.channel.id,
@@ -65,10 +32,8 @@ async function addScrapChannel(message) {
                 message.guild.ownerID,
             ])
             console.log(`New guild: ${message.guild.name}`)
-            connection.release()
         } catch (err) {
             console.log(err)
-            connection.release()
         }
     }
 }
@@ -80,18 +45,16 @@ async function addScrapChannel(message) {
  */
 async function removeScrapChannel(message) {
     scrapChannels.delete(message.channel.id)
-    const connection = await pool.getConnection(async conn => conn)
     try {
-        const [rows] = await connection.query(QUERY.UPDATE, [
+        const [rows] = await db('UPDATE_GUILD', [
             'STOP',
             null,
             message.author.id,
             message.guild.id,
         ])
-        connection.release()
         return true
     } catch (err) {
-        connection.release()
+        console.log(err)
     }
 }
 
@@ -100,9 +63,8 @@ async function removeScrapChannel(message) {
  * @param {Object} guilds
  */
 async function addGuildInfo(g) {
-    const connection = await pool.getConnection(async conn => conn)
     try {
-        await connection.query(QUERY.CREATE, [
+        await db('INSERT_GUILD', [
             g.id,
             g.name,
             null,
@@ -111,10 +73,8 @@ async function addGuildInfo(g) {
             g.ownerID,
         ])
         console.log(`New guild: ${g.name}`)
-        connection.release()
     } catch (err) {
         console.log(err)
-        connection.release()
     }
 }
 
@@ -123,13 +83,10 @@ async function addGuildInfo(g) {
  * @param {String} guildId
  */
 async function removeGuildInfo(guildId) {
-    const connection = await pool.getConnection(async conn => conn)
     try {
-        await connection.query(QUERY.DELETE, guildId)
-        connection.release()
+        await db('DELETE_GUILD', guildId)
     } catch (err) {
         console.log(err)
-        connection.release()
     }
 }
 
@@ -145,9 +102,8 @@ module.exports = {
      */
     async init() {
         // Get guilds list
-        const connection = await pool.getConnection(async conn => conn)
         try {
-            const [rows] = await connection.query(QUERY.READ)
+            const [rows] = await db('GET_GUILDS_LIST')
             rows.forEach(row => {
                 guildsList.set(row.guild_id, row)
                 // Realtime scrap channels
@@ -155,10 +111,9 @@ module.exports = {
                     scrapChannels.add(row.scrap_channel_id)
                 }
             })
-            connection.release()
             return true
         } catch (err) {
-            connection.release()
+            console.log(err)
         }
     },
 }

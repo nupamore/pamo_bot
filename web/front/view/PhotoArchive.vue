@@ -74,6 +74,7 @@ import { mapGetters } from 'vuex'
 import IconSelect from 'component/IconSelect.vue'
 import PhotoCard from 'component/PhotoCard.vue'
 import filters from 'module/filters'
+import api from 'module/api/gateway'
 
 export default {
     components: {
@@ -100,10 +101,12 @@ export default {
     methods: {
         async getImageList(page) {
             this.currentPage = page
-            const res = await fetch(
-                `/images?galleryId=${this.serverId}&owner=${this.uploaderId}&page=${this.currentPage}`,
-            )
-            const data = await res.json()
+
+            const data = await api('GET_IMAGES', {
+                galleryId: this.serverId,
+                owner: this.uploaderId,
+                page: this.currentPage,
+            })
             this.imageList = data.images.map(image => {
                 const imgUrl = filters.imgUrl(
                     image.channel_id,
@@ -127,8 +130,9 @@ export default {
             this.uploaderId = 'All'
             this.getImageList(1)
             // uploader list
-            const res = await fetch(`/uploaders?galleryId=${this.serverId}`)
-            const data = await res.json()
+            const data = await api('GET_UPLOADERS', {
+                galleryId: this.serverId,
+            })
             const uploaderList = data.map(item => ({
                 value: item.owner_id,
                 label: item.owner_name,
@@ -146,11 +150,7 @@ export default {
             this.getImageList(1)
         },
         async onDeleteImage(item) {
-            const res = await fetch('/image', {
-                method: 'delete',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(item),
-            })
+            const res = await api('DELETE_IMAGE', item)
             if (await res.json()) {
                 this.imageList = this.imageList.filter(
                     img => img.fileId !== item.fileId,

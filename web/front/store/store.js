@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import 'babel-polyfill'
+import api from 'module/api/gateway'
 
 Vue.use(Vuex)
 
@@ -26,12 +27,11 @@ export default new Vuex.Store({
         },
     },
     actions: {
-        async getUserInfo(state) {
-            const res = await fetch('/profile')
-            const data = await res.json()
-            state.commit('SET_USER_INFO', data)
+        async getUserInfo(context) {
+            const data = await api('GET_PROFILE')
+            context.commit('SET_USER_INFO', data)
         },
-        logout(state) {
+        logout() {
             location.href = '/logout'
         },
     },
