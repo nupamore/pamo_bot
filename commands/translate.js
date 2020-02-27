@@ -73,6 +73,6 @@ function translate(message, type, source, target) {
 }
 
 translate.comment =
-    `***${CONFIG.discord.prefix}kj***` +
+    `**${CONFIG.discord.prefix}kj**` +
     ` - Korean -> Japanese (+ English, Chinese, Spanish, French)`
 module.exports = translate

@@ -53,6 +53,7 @@ app.get('/randomImage/:serverId', (req, res) => {
                 else res.send(str)
             },
         },
+        _: {},
     })
 })
 

@@ -4,6 +4,7 @@ module.exports = {
         SELECT channel_id, file_id, file_name
         FROM discord_images
         WHERE guild_id = ?
+            AND owner_id LIKE ?
         ORDER BY rand() limit 1;
     `,
     DELETE_IMAGE: `

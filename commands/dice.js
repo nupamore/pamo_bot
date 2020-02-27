@@ -17,5 +17,6 @@ function dice(message) {
 }
 
 dice.comment =
-    `***${CONFIG.discord.prefix}dice 6***` + ` - Get random number (default: 6)`
+    `**${CONFIG.discord.prefix}dice** ***6***` +
+    ` - Get random *number* (default: 6)`
 module.exports = dice

@@ -150,8 +150,8 @@ export default {
             this.getImageList(1)
         },
         async onDeleteImage(item) {
-            const res = await api('DELETE_IMAGE', item)
-            if (await res.json()) {
+            const data = await api('DELETE_IMAGE', item)
+            if (data) {
                 this.imageList = this.imageList.filter(
                     img => img.fileId !== item.fileId,
                 )

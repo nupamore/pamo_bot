@@ -76,8 +76,8 @@ async function crawl(message) {
 }
 
 crawl.comment =
-    `***${CONFIG.discord.prefix}crawl past***` +
+    `**${CONFIG.discord.prefix}crawl** ***past***` +
     ` - Crawling past images of this channel\n` +
-    `***${CONFIG.discord.prefix}crawl on***` +
+    `**${CONFIG.discord.prefix}crawl** ***on***` +
     ` - The bot start real-time crawling`
 module.exports = crawl
