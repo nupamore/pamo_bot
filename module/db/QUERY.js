@@ -1,7 +1,7 @@
 module.exports = {
     // image
     GET_RANDOM_IMAGE: `
-        SELECT channel_id, file_id, file_name
+        SELECT channel_id, file_id, file_name, owner_name, reg_date
         FROM discord_images
         WHERE guild_id = ?
             AND owner_id LIKE ?

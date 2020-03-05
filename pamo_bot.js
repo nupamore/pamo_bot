@@ -13,9 +13,9 @@ const guild = require('./module/guild')
  */
 const f = {
     translate: require('./commands/translate'),
-    image: require('./commands/image'),
     dice: require('./commands/dice'),
     crawl: require('./commands/botCrawl'),
+    image: require('./commands/image'),
     scrap: require('./commands/scrap'),
 }
 
@@ -27,10 +27,12 @@ function commandList(message) {
     const comments = Object.values(f)
         .filter(_ => _.comment)
         .map(_ => _.comment)
-    message.channel.send(
-        'Photo Archive: https://vrc.nupa.moe\n' +
-            comments.reduce((p, n) => `${p}\n${n}`, ''),
-    )
+    const embed = new Discord.RichEmbed().setTitle('Pamo_bot commands list')
+    comments.forEach(([subj, desc]) => {
+        embed.addField(subj, desc)
+    })
+    embed.addField('Photo Archive', `https://vrc.nupa.moe`)
+    message.channel.send(embed)
 }
 async function noCommand(message) {
     const m = await message.channel.send(`ハワワ (ㆁᴗㆁ✿)?`)

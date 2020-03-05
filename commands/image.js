@@ -1,3 +1,5 @@
+const Discord = require('discord.js')
+
 const CONFIG = require('./../config.json')
 const db = require('./../module/db/driver')
 const { imgUrl } = require('./../module/filters')
@@ -29,17 +31,30 @@ async function image(message) {
         if (!rows.length) {
             message.channel.send(`Couldn't find any image`)
         } else {
-            const { channel_id, file_id, file_name } = rows[0]
+            const {
+                channel_id,
+                file_id,
+                file_name,
+                owner_name,
+                reg_date,
+            } = rows[0]
             const url = imgUrl(channel_id, file_id, file_name)
-            message.channel.send('', { files: [url] })
+            const embed = new Discord.RichEmbed()
+                .setImage(url)
+                .setFooter(`📷 ${owner_name}`)
+                .setTimestamp(reg_date)
+            message.channel.send(embed)
         }
     } catch (err) {
         message.channel.send(`DB error`)
     }
 }
 
-image.comment = `**${CONFIG.discord.prefix}image**` + ` - Show a random image\n`
-image.comment +=
-    `**${CONFIG.discord.prefix}image** ***username***` +
-    ` - Show a random image uploaded by *username*`
+image.comment = [
+    'Image (Require archived images)',
+    `**${CONFIG.discord.prefix}image**
+    Show a random image
+    **${CONFIG.discord.prefix}image** ***username***
+    Show a random image uploaded by *username*`,
+]
 module.exports = image

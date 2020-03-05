@@ -16,7 +16,10 @@ function dice(message) {
     message.channel.send(`${number} / ${max}`)
 }
 
-dice.comment =
-    `**${CONFIG.discord.prefix}dice** ***6***` +
-    ` - Get random *number* (default: 6)`
+dice.comment = [
+    'Random number',
+    `**${CONFIG.discord.prefix}dice** ***100***
+    Get a random number (max 100)
+    default: 6`,
+]
 module.exports = dice
