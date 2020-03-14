@@ -103,9 +103,13 @@ export default {
             this.currentPage = page
 
             const data = await api('GET_IMAGES', {
-                galleryId: this.serverId,
-                owner: this.uploaderId,
-                page: this.currentPage,
+                path: {
+                    guildId: this.serverId,
+                },
+                params: {
+                    owner: this.uploaderId,
+                    page: this.currentPage,
+                },
             })
             this.imageList = data.images.map(image => {
                 const imgUrl = filters.imgUrl(
@@ -127,11 +131,12 @@ export default {
         },
         async onServerSelect(serverId) {
             this.serverId = serverId
-            this.uploaderId = 'All'
             this.getImageList(1)
             // uploader list
             const data = await api('GET_UPLOADERS', {
-                galleryId: this.serverId,
+                path: {
+                    guildId: this.serverId,
+                },
             })
             const uploaderList = data.map(item => ({
                 value: item.owner_id,

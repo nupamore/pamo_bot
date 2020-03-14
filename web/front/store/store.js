@@ -31,8 +31,9 @@ export default new Vuex.Store({
             const data = await api('GET_PROFILE')
             context.commit('SET_USER_INFO', data)
         },
-        logout() {
-            location.href = '/logout'
+        async logout() {
+            await api('LOGOUT')
+            location.reload()
         },
     },
 })

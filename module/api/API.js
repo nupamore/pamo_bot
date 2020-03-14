@@ -1,6 +1,7 @@
 module.exports = {
-    GET_PROFILE: ['GET', '/profile'],
-    GET_UPLOADERS: ['GET', '/uploaders'],
-    GET_IMAGES: ['GET', '/images'],
-    DELETE_IMAGE: ['DELETE', '/image'],
+    LOGOUT: ['GET', '/auth/logout'],
+    GET_PROFILE: ['GET', '/auth/me'],
+    GET_UPLOADERS: ['GET', '/api/guild/{guildId}/uploaders'],
+    GET_IMAGES: ['GET', '/api/guild/{guildId}/images'],
+    DELETE_IMAGE: ['DELETE', '/api/image/{imageId}'],
 }
