@@ -131,6 +131,7 @@ export default {
         },
         async onServerSelect(serverId) {
             this.serverId = serverId
+            this.uploaderId = ''
             this.getImageList(1)
             // uploader list
             const data = await api('GET_UPLOADERS', {
@@ -146,7 +147,7 @@ export default {
             }))
             const sum = data.reduce((p, n) => p + n.amount, 0)
             this.uploaderList = [
-                { value: 'All', label: 'All', sub: sum },
+                { value: '', label: 'All', sub: sum },
                 ...uploaderList,
             ]
         },
@@ -155,7 +156,11 @@ export default {
             this.getImageList(1)
         },
         async onDeleteImage(item) {
-            const data = await api('DELETE_IMAGE', item)
+            const data = await api('DELETE_IMAGE', {
+                path: {
+                    imageId: item.fileId,
+                },
+            })
             if (data) {
                 this.imageList = this.imageList.filter(
                     img => img.fileId !== item.fileId,
