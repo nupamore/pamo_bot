@@ -113,7 +113,11 @@ client.on('message', message => {
         .toLowerCase()
         .split(/\s+/g)
     const command = args.shift()
-    message._ = { text: args.join(' ') }
+    message._ = {
+        text: message.content
+            .slice(CONFIG.discord.prefix.length + command.length)
+            .trim(),
+    }
 
     // Connect functions to custom command
     const func =
@@ -123,8 +127,9 @@ client.on('message', message => {
             crawl: () => crawl(message, args),
             dice: () => f.dice(message),
             image: () => f.image(message),
-            test: () => f.test(message),
+            t: () => f.translate(message, 'aws', 'auto', args[0]),
 
+            // deprecated
             ke: () => f.translate(message, 'nmt', 'ko', 'en'),
             ek: () => f.translate(message, 'nmt', 'en', 'ko'),
             kj: () => f.translate(message, 'nmt', 'ko', 'ja'),
@@ -139,7 +144,6 @@ client.on('message', message => {
             kf: () => f.translate(message, 'nmt', 'ko', 'fr'),
             sk: () => f.translate(message, 'nmt', 'es', 'ko'),
             ks: () => f.translate(message, 'nmt', 'ko', 'es'),
-
             kj2: () => f.translate(message, 'kakao', 'kr', 'jp'),
             jk2: () => f.translate(message, 'kakao', 'jp', 'kr'),
             ke2: () => f.translate(message, 'kakao', 'kr', 'en'),
