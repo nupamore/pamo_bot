@@ -2,6 +2,14 @@ const db = require('./db/driver')
 
 const guildsList = new Map()
 const scrapChannels = new Set()
+/**
+ * auto translate test
+ */
+const translateChannels = new Set([
+    '681470820220010497', // dev test
+    '507170236265398272',
+    '662308553494626307',
+])
 
 /**
  * Start realtime scrap
@@ -93,6 +101,7 @@ async function removeGuildInfo(guildId) {
 module.exports = {
     guildsList,
     scrapChannels,
+    translateChannels,
     addScrapChannel,
     removeScrapChannel,
     addGuildInfo,

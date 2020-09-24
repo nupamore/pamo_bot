@@ -95,6 +95,25 @@ function kakao(message, source, target) {
 }
 
 /**
+ * Kakao language detect
+ *
+ * @param {String} text
+ */
+function kakaoLanguageDetect(text) {
+    const options = {
+        url: CONFIG.kakao.languageDetect,
+        form: { query: text },
+        headers: { Authorization: CONFIG.kakao.key },
+    }
+    return new Promise((resolve, reject) => {
+        request.post(options, (error, response, body) => {
+            if (error) reject(error)
+            else resolve(JSON.parse(body).language_info.code)
+        })
+    })
+}
+
+/**
  * Select api
  *
  * @param {Object} message
@@ -122,4 +141,6 @@ translate.comment = [
     Any language -> English
     https://docs.aws.amazon.com/translate/latest/dg/what-is.html#what-is-languages`,
 ]
+translate.detect = kakaoLanguageDetect
+translate.papago = papago
 module.exports = translate

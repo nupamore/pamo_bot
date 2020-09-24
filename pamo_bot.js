@@ -102,6 +102,15 @@ client.on('guildDelete', g => {
  */
 client.on('message', message => {
     if (message.author.bot) return
+    if (message.author.bot) return
+    // auto translate test
+    if (guild.translateChannels.has(message.channel.id)) {
+        f.translate.detect(message.content).then(lang => {
+            message._ = { text: message.content }
+            if (lang == 'kr') f.translate.papago(message, 'nmt', 'ko', 'ja')
+            if (lang == 'jp') f.translate.papago(message, 'nmt', 'ja', 'ko')
+        })
+    }
     if (guild.scrapChannels.has(message.channel.id) && message.attachments.size)
         f.scrap(message)
     if (message.content === CONFIG.discord.prefix) return
