@@ -9,6 +9,7 @@ import (
 	"github.com/diamondburned/arikawa/gateway"
 	"github.com/joho/godotenv"
 	"github.com/nupamore/pamo_bot/discord"
+	"github.com/nupamore/pamo_bot/services"
 )
 
 func init() {
@@ -16,8 +17,13 @@ func init() {
 }
 
 func main() {
-	var token = os.Getenv("BOT_TOKEN")
-	var prefix = os.Getenv("BOT_PREFIX")
+	if err := services.DBsetup(); err != nil {
+		log.Println("DB init fail")
+		panic(err)
+	}
+
+	token := os.Getenv("BOT_TOKEN")
+	prefix := os.Getenv("BOT_PREFIX")
 
 	commands := &discord.Commands{}
 

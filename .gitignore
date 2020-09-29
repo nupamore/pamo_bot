@@ -1,4 +1,6 @@
 .env
+sqlboiler.toml
+models/*
 
 # Binaries for programs and plugins
 *.exe
