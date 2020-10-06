@@ -17,6 +17,10 @@ func init() {
 }
 
 func main() {
+	if err := services.AWSsetup(); err != nil {
+		log.Println("AWS init fail")
+		panic(err)
+	}
 	if err := services.DBsetup(); err != nil {
 		log.Println("DB init fail")
 		panic(err)

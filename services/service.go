@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/translate"
 	_ "github.com/volatiletech/sqlboiler/v4/drivers/sqlboiler-mysql/driver" // mysql driver
 )
 
@@ -30,5 +32,18 @@ func DBsetup() error {
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+// AWStranslate : aws translate client
+var AWStranslate *translate.Client
+
+// AWSsetup : aws init
+func AWSsetup() error {
+	cfg, err := config.LoadDefaultConfig()
+	if err != nil {
+		return err
+	}
+	AWStranslate = translate.NewFromConfig(cfg)
 	return nil
 }
