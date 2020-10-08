@@ -11,10 +11,13 @@ type Commands struct {
 	Ctx *bot.Context
 }
 
-// Service : Service
-var Service *services.Service
-
 // NoCommandHandler : if has not prefix
 func NoCommandHandler(m *gateway.MessageCreateEvent) {
-	// log.Println(m.Author.Username, "sent", m.Content)
+	// scrap image
+	hasImage := len(m.Attachments) > 0
+	_, isScrapingChannel := services.ScrapingChannelIDs[m.ChannelID]
+
+	if hasImage && isScrapingChannel {
+		services.ScrapImage(m.Attachments[0])
+	}
 }

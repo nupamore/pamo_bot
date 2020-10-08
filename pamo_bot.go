@@ -17,14 +17,9 @@ func init() {
 }
 
 func main() {
-	if err := services.AWSsetup(); err != nil {
-		log.Println("AWS init fail")
-		panic(err)
-	}
-	if err := services.DBsetup(); err != nil {
-		log.Println("DB init fail")
-		panic(err)
-	}
+	services.AWSsetup()
+	services.DBsetup()
+	services.GetScrapingChannelIDs()
 
 	token := os.Getenv("BOT_TOKEN")
 	prefix := os.Getenv("BOT_PREFIX")

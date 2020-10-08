@@ -8,7 +8,7 @@ import (
 )
 
 // TranslateAWS : translate via aws
-func (s *Service) TranslateAWS(source string, target string, text string) (*string, error) {
+func TranslateAWS(source string, target string, text string) (*string, error) {
 	response, err := AWStranslate.TranslateText(context.Background(), &translate.TranslateTextInput{
 		SourceLanguageCode: aws.String(source),
 		TargetLanguageCode: aws.String(target),

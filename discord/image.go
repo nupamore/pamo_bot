@@ -6,6 +6,7 @@ import (
 	"github.com/diamondburned/arikawa/bot"
 	"github.com/diamondburned/arikawa/discord"
 	"github.com/diamondburned/arikawa/gateway"
+	"github.com/nupamore/pamo_bot/services"
 )
 
 // Image : get a random image from this guild
@@ -18,7 +19,7 @@ func (cmd *Commands) Image(m *gateway.MessageCreateEvent, arg bot.RawArguments) 
 	embed := discord.Embed{}
 
 	// query a random image
-	image, err := Service.GetRandomImage(m.GuildID, ownerName)
+	image, err := services.GetRandomImage(m.GuildID, ownerName)
 	if err != nil {
 		embed.Description = "Couldn't find any image"
 		return &embed, nil

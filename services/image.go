@@ -7,7 +7,7 @@ import (
 )
 
 // GetRandomImage : get a random image
-func (s *Service) GetRandomImage(guildID discord.GuildID, ownerName string) (*models.DiscordImage, error) {
+func GetRandomImage(guildID discord.GuildID, ownerName string) (*models.DiscordImage, error) {
 	if ownerName == "" {
 		ownerName = "%"
 	}
@@ -22,4 +22,9 @@ func (s *Service) GetRandomImage(guildID discord.GuildID, ownerName string) (*mo
 	}
 
 	return image, nil
+}
+
+// ScrapImage : save image info to server
+func ScrapImage(discord.Attachment) error {
+	return nil
 }

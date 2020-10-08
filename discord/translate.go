@@ -5,6 +5,7 @@ import (
 
 	"github.com/diamondburned/arikawa/bot"
 	"github.com/diamondburned/arikawa/gateway"
+	"github.com/nupamore/pamo_bot/services"
 )
 
 // T : translate
@@ -24,7 +25,7 @@ func (cmd *Commands) T(_ *gateway.MessageCreateEvent, arg bot.RawArguments) (str
 		return "Too many senetences", nil
 	}
 
-	result, err := Service.TranslateAWS("auto", target, text)
+	result, err := services.TranslateAWS("auto", target, text)
 	if err != nil {
 		return "Invalid target language", nil
 	}

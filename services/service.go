@@ -3,6 +3,7 @@ package services
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -10,14 +11,11 @@ import (
 	_ "github.com/volatiletech/sqlboiler/v4/drivers/sqlboiler-mysql/driver" // mysql driver
 )
 
-// Service : service
-type Service struct{}
-
 // DB : db
 var DB *sql.DB
 
 // DBsetup : db init
-func DBsetup() error {
+func DBsetup() {
 	// db setup
 	dsn := fmt.Sprintf("%s:%s@(%s)/%s?%s",
 		os.Getenv("DB_USER"),
@@ -30,20 +28,20 @@ func DBsetup() error {
 	DB = db
 
 	if err != nil {
-		return err
+		log.Println("AWS init fail")
+		panic(err)
 	}
-	return nil
 }
 
 // AWStranslate : aws translate client
 var AWStranslate *translate.Client
 
 // AWSsetup : aws init
-func AWSsetup() error {
+func AWSsetup() {
 	cfg, err := config.LoadDefaultConfig()
 	if err != nil {
-		return err
+		log.Println("AWS init fail")
+		panic(err)
 	}
 	AWStranslate = translate.NewFromConfig(cfg)
-	return nil
 }
