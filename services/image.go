@@ -2,6 +2,7 @@ package services
 
 import (
 	"github.com/diamondburned/arikawa/discord"
+	"github.com/diamondburned/arikawa/gateway"
 	"github.com/nupamore/pamo_bot/models"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
@@ -25,6 +26,9 @@ func GetRandomImage(guildID discord.GuildID, ownerName string) (*models.DiscordI
 }
 
 // ScrapImage : save image info to server
-func ScrapImage(discord.Attachment) error {
+func ScrapImage(m *gateway.MessageCreateEvent) error {
+	file := m.Attachments[0]
+	var image models.DiscordImage
+
 	return nil
 }
