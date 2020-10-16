@@ -1,9 +1,14 @@
 package services
 
 import (
+	"log"
+	"time"
+
 	"github.com/diamondburned/arikawa/discord"
 	"github.com/diamondburned/arikawa/gateway"
 	"github.com/nupamore/pamo_bot/models"
+	"github.com/volatiletech/null/v8"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
@@ -29,6 +34,17 @@ func GetRandomImage(guildID discord.GuildID, ownerName string) (*models.DiscordI
 func ScrapImage(m *gateway.MessageCreateEvent) error {
 	file := m.Attachments[0]
 	var image models.DiscordImage
+	image.GuildID = null.StringFrom(string(m.GuildID))
+	image.ChannelID = null.StringFrom(string(m.ChannelID))
+	image.FileID = string(file.ID)
+	image.FileName = null.StringFrom(file.Filename)
+	image.RegDate = null.TimeFrom(time.Time(m.Timestamp))
+	image.ArchiveDate = null.TimeFrom(time.Now())
+
+	err := image.Insert(DB, boil.Infer())
+	if err != nil {
+		log.Println(err)
+	}
 
 	return nil
 }

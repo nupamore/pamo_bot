@@ -6,6 +6,8 @@ import (
 
 	"github.com/diamondburned/arikawa/discord"
 	"github.com/nupamore/pamo_bot/models"
+	"github.com/volatiletech/null/v8"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
@@ -30,5 +32,39 @@ func GetScrapingChannelIDs() {
 		id, _ := strconv.ParseUint(idStr, 10, 64)
 
 		ScrapingChannelIDs[discord.ChannelID(id)] = true
+	}
+}
+
+// AddScrapingChannel : add scraping channel
+func AddScrapingChannel(guildID discord.GuildID, channelID discord.ChannelID) {
+	guild, err := models.DiscordGuilds(
+		qm.Where("guild_id=?", guildID),
+	).One(DB)
+
+	guild.ScrapChannelID = null.StringFrom(string(channelID))
+	guild.Status = null.StringFrom("WATCH")
+	guild.Update(DB, boil.Infer())
+
+	if err != nil {
+		log.Println(err)
+	} else {
+		ScrapingChannelIDs[channelID] = true
+	}
+}
+
+// RemoveScrapingChannel : remove scraping channel
+func RemoveScrapingChannel(guildID discord.GuildID, channelID discord.ChannelID) {
+	guild, err := models.DiscordGuilds(
+		qm.Where("guild_id=?", guildID),
+	).One(DB)
+
+	guild.ScrapChannelID = null.NewString("", false)
+	guild.Status = null.StringFrom("STOP")
+	guild.Update(DB, boil.Infer())
+
+	if err != nil {
+		log.Println(err)
+	} else {
+		delete(ScrapingChannelIDs, channelID)
 	}
 }
