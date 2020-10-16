@@ -8,8 +8,12 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/translate"
+	"github.com/diamondburned/arikawa/api"
 	_ "github.com/volatiletech/sqlboiler/v4/drivers/sqlboiler-mysql/driver" // mysql driver
 )
+
+// DiscordAPI : discord api
+var DiscordAPI *api.Client
 
 // DB : db
 var DB *sql.DB

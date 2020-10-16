@@ -5,6 +5,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/diamondburned/arikawa/api"
 	"github.com/diamondburned/arikawa/bot"
 	"github.com/diamondburned/arikawa/gateway"
 	"github.com/joho/godotenv"
@@ -24,6 +25,7 @@ func main() {
 	token := os.Getenv("BOT_TOKEN")
 	prefix := os.Getenv("BOT_PREFIX")
 
+	services.DiscordAPI = api.NewClient("Bot " + token)
 	commands := &discord.Commands{}
 
 	wait, err := bot.Start(token, commands, func(ctx *bot.Context) error {
@@ -31,7 +33,7 @@ func main() {
 		me, _ := ctx.Me()
 
 		ctx.AddHandler(func(m *gateway.MessageCreateEvent) {
-			if me.ID == m.Author.ID {
+			if me.ID == m.Author.ID || m.Author.Bot {
 				return
 			}
 			// no prefix event

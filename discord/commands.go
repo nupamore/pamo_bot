@@ -18,6 +18,6 @@ func NoCommandHandler(m *gateway.MessageCreateEvent) {
 	_, isScrapingChannel := services.ScrapingChannelIDs[m.ChannelID]
 
 	if hasImage && isScrapingChannel {
-		// services.ScrapImage(m)
+		services.ScrapImage(m.Message)
 	}
 }
