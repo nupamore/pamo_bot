@@ -14,8 +14,19 @@ import (
 // ScrapingChannelIDs : scraping channels
 var ScrapingChannelIDs map[discord.ChannelID]bool
 
-// GetScrapingChannelIDs : get scraping channels from server
-func GetScrapingChannelIDs() {
+// AutoTranslateChannelIDs : auto translate channels
+var AutoTranslateChannelIDs map[discord.ChannelID]bool
+
+// InitChannelsInfo : get channels info from server
+func InitChannelsInfo() {
+	// auto translate channels
+	AutoTranslateChannelIDs = map[discord.ChannelID]bool{
+		681470820220010497: true,
+		507170236265398272: true,
+		662308553494626307: true,
+	}
+
+	// scraping channels
 	guilds, err := models.DiscordGuilds(
 		qm.Where("status = 'WATCH'"),
 	).All(DB)

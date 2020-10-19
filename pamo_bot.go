@@ -20,7 +20,7 @@ func init() {
 func main() {
 	services.AWSsetup()
 	services.DBsetup()
-	services.GetScrapingChannelIDs()
+	services.InitChannelsInfo()
 
 	token := os.Getenv("BOT_TOKEN")
 	prefix := os.Getenv("BOT_PREFIX")
