@@ -9,6 +9,7 @@ require (
 	github.com/diamondburned/arikawa v1.3.2
 	github.com/friendsofgo/errors v0.9.2
 	github.com/go-sql-driver/mysql v1.5.0
+	github.com/gofiber/fiber/v2 v2.1.0
 	github.com/joho/godotenv v1.3.0
 	github.com/monaco-io/request v1.0.5
 	github.com/volatiletech/null/v8 v8.1.0

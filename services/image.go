@@ -72,3 +72,35 @@ func CrawlImages(channelID discord.ChannelID, messageID discord.MessageID) (disc
 	}
 	return messages[len(messages)-1].ID, err
 }
+
+// Uploader : uploader model
+type Uploader struct {
+	OwnerID     string      `json:"id"`
+	OwnerName   string      `json:"name"`
+	OwnerAvatar null.String `json:"avatar"`
+}
+
+// GetImageUploaders : get uploaders in guild
+func GetImageUploaders(guildID discord.GuildID) ([]Uploader, error) {
+	uploaders := []Uploader{}
+	images, err := models.DiscordImages(
+		qm.Select("owner_id", "owner_name", "owner_avatar"),
+		qm.Where("guild_id = ?", guildID),
+		qm.GroupBy("owner_id"),
+	).All(DB)
+
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	for _, image := range images {
+		uploaders = append(uploaders, Uploader{
+			OwnerID:     *image.OwnerID.Ptr(),
+			OwnerName:   *image.OwnerName.Ptr(),
+			OwnerAvatar: image.OwnerAvatar,
+		})
+	}
+
+	return uploaders, err
+}

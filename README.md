@@ -7,6 +7,6 @@
 ---
 
 ## Guide
-[EN](docs/GUIDE.md) |
-[JA](docs/GUIDE_ja.md) |
-[KO](docs/GUIDE_ko.md)
+[English](docs/GUIDE.md) |
+[日本語](docs/GUIDE_ja.md) |
+[한국어](docs/GUIDE_ko.md)

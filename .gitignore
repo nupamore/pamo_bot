@@ -1,6 +1,5 @@
-.env
-sqlboiler.toml
-models/*
+configs
+models
 
 # Binaries for programs and plugins
 *.exe

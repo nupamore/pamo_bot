@@ -2,11 +2,13 @@
 
 ```sh
 # Create dotenv
-vim .env
+vim configs/.env
 # Create db config file
-vim sqlboiler.toml
+vim configs/sqlboiler.toml
 # Generate models
-sqlboiler mysql
+sqlboiler mysql --config configs/sqlboiler.toml
 # Bot start
-go run pamo_bot.go
+go run cmd/bot/bot.go
+# REST Server start
+go run cmd/server/server.go
 ```
