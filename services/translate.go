@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/monaco-io/request"
@@ -14,18 +13,14 @@ import (
 )
 
 // TranslateAWS : translate via aws
-func TranslateAWS(source string, target string, text string) (*string, error) {
+func TranslateAWS(source string, target string, text string) (*translate.TranslateTextOutput, error) {
 	response, err := AWStranslate.TranslateText(context.Background(), &translate.TranslateTextInput{
 		SourceLanguageCode: aws.String(source),
 		TargetLanguageCode: aws.String(target),
 		Text:               aws.String(text),
 	})
 
-	if err != nil {
-		return nil, err
-	}
-
-	return response.TranslatedText, nil
+	return response, err
 }
 
 type papagoResult struct {
@@ -59,10 +54,6 @@ func TranslatePapago(source string, target string, text string) (*string, error)
 	}
 	resp, err := client.Do()
 
-	if err != nil {
-		log.Println(err)
-	}
-
 	var res papagoResponse
 	json.Unmarshal(resp.Data, &res)
 
@@ -91,10 +82,6 @@ func LanguageDetect(text string) (LanguageDetectResponse, error) {
 		Params: map[string]string{"query": text},
 	}
 	resp, err := client.Do()
-
-	if err != nil {
-		log.Println(err)
-	}
 
 	var result LanguageDetectResponse
 	json.Unmarshal(resp.Data, &result)

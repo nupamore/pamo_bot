@@ -1,4 +1,4 @@
-package discord
+package commands
 
 import (
 	"fmt"
@@ -11,27 +11,25 @@ import (
 
 // Crawl : crawl images command
 func (cmd *Commands) Crawl(m *gateway.MessageCreateEvent, arg bot.RawArguments) (string, error) {
+	switch arg {
 	// current status
-	if arg == "" {
+	case "":
 		_, isScrapingChannel := services.ScrapingChannelIDs[m.ChannelID]
 		if isScrapingChannel {
 			return "Watching now this channel", nil
 		}
 		return "Not watching this channel", nil
-	}
 
 	// change status
-	if arg == "on" {
+	case "on":
 		services.AddScrapingChannel(m.GuildID, m.ChannelID)
 		return "Watching now this channel", nil
-	}
-	if arg == "off" {
+	case "off":
 		services.RemoveScrapingChannel(m.GuildID, m.ChannelID)
 		return "Not watching this channel", nil
-	}
 
 	// crawl past
-	if arg == "past" {
+	case "past":
 		max, msgID := 20, m.ID
 
 		temp := "Crawling messages (%d / %d)"

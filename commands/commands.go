@@ -1,4 +1,4 @@
-package discord
+package commands
 
 import (
 	"fmt"
@@ -15,20 +15,25 @@ type Commands struct {
 
 // NoCommandHandler : if has not prefix
 func NoCommandHandler(m *gateway.MessageCreateEvent) {
-	// scrap image
+	scrapImage(m)
+	autoTranslate(m)
+}
+
+func scrapImage(m *gateway.MessageCreateEvent) {
 	hasImage := len(m.Attachments) > 0
 	_, isScrapingChannel := services.ScrapingChannelIDs[m.ChannelID]
 
 	if hasImage && isScrapingChannel {
 		services.ScrapImage(m.Message)
 	}
+}
 
-	// auto transalte
+func autoTranslate(m *gateway.MessageCreateEvent) {
 	_, isAutoTranslateChannel := services.AutoTranslateChannelIDs[m.ChannelID]
-
-	if hasImage || !isAutoTranslateChannel || len(m.Content) > 100 {
+	if !isAutoTranslateChannel || len(m.Content) > 100 {
 		return
 	}
+
 	detect, err := services.LanguageDetect(m.Content)
 	if err != nil {
 		return

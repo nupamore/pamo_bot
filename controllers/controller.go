@@ -1,8 +1,6 @@
 package controllers
 
 import (
-	"encoding/json"
-
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -12,7 +10,7 @@ type Controller struct{}
 // Response : response model
 type Response struct {
 	Code    int         `json:"code"`
-	Message error       `json:"message,omitempty"`
+	Message string      `json:"message,omitempty"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
@@ -20,10 +18,9 @@ type Response struct {
 func (ctrl *Controller) SendError(c *fiber.Ctx, code int, err error) error {
 	res := Response{
 		Code:    code,
-		Message: err,
+		Message: err.Error(),
 	}
-	r, _ := json.Marshal(res)
-	return c.Send(r)
+	return c.JSON(res)
 }
 
 // error codes

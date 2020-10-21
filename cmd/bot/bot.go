@@ -9,7 +9,7 @@ import (
 	"github.com/diamondburned/arikawa/bot"
 	"github.com/diamondburned/arikawa/gateway"
 	"github.com/joho/godotenv"
-	"github.com/nupamore/pamo_bot/discord"
+	"github.com/nupamore/pamo_bot/commands"
 	"github.com/nupamore/pamo_bot/services"
 )
 
@@ -26,9 +26,8 @@ func main() {
 	prefix := os.Getenv("BOT_PREFIX")
 
 	services.DiscordAPI = api.NewClient("Bot " + token)
-	commands := &discord.Commands{}
 
-	wait, err := bot.Start(token, commands, func(ctx *bot.Context) error {
+	wait, err := bot.Start(token, &commands.Commands{}, func(ctx *bot.Context) error {
 		ctx.HasPrefix = bot.NewPrefix(prefix)
 		me, _ := ctx.Me()
 
@@ -38,10 +37,9 @@ func main() {
 			}
 			// no prefix event
 			if !strings.HasPrefix(m.Content, prefix) {
-				discord.NoCommandHandler(m)
+				commands.NoCommandHandler(m)
 			}
 		})
-
 		return nil
 	})
 

@@ -1,6 +1,7 @@
-package discord
+package commands
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/diamondburned/arikawa/bot"
@@ -9,7 +10,7 @@ import (
 )
 
 // T : translate
-func (cmd *Commands) T(_ *gateway.MessageCreateEvent, arg bot.RawArguments) (string, error) {
+func (cmd *Commands) T(m *gateway.MessageCreateEvent, arg bot.RawArguments) (string, error) {
 	if arg == "" {
 		return "No target language", nil
 	}
@@ -30,5 +31,10 @@ func (cmd *Commands) T(_ *gateway.MessageCreateEvent, arg bot.RawArguments) (str
 		return "Invalid target language", nil
 	}
 
-	return *result, nil
+	return fmt.Sprintf(
+		"%s(%s): %s",
+		m.Author.Mention(),
+		*result.SourceLanguageCode,
+		*result.TranslatedText,
+	), nil
 }

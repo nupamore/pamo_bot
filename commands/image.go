@@ -1,4 +1,4 @@
-package discord
+package commands
 
 import (
 	"fmt"
@@ -34,5 +34,5 @@ func (cmd *Commands) Image(m *gateway.MessageCreateEvent, arg bot.RawArguments) 
 		*image.FileName.Ptr(),
 	)}
 
-	return &embed, err
+	return &embed, nil
 }

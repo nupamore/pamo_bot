@@ -3,6 +3,7 @@ package services
 import (
 	"log"
 	"regexp"
+	"strconv"
 	"time"
 
 	"github.com/diamondburned/arikawa/discord"
@@ -23,26 +24,23 @@ func GetRandomImage(guildID discord.GuildID, ownerName string) (*models.DiscordI
 		qm.OrderBy("rand()"),
 	).One(DB)
 
-	if err != nil {
-		return nil, err
-	}
-
-	return image, nil
+	return image, err
 }
 
 // ScrapImage : save image info to server
 func ScrapImage(m discord.Message) error {
 	file := m.Attachments[0]
-	var image models.DiscordImage
-	image.GuildID = null.StringFrom(string(m.GuildID))
-	image.ChannelID = null.StringFrom(string(m.ChannelID))
-	image.FileID = string(file.ID)
-	image.FileName = null.StringFrom(file.Filename)
-	image.RegDate = null.TimeFrom(time.Time(m.Timestamp))
-	image.ArchiveDate = null.TimeFrom(time.Now())
-	image.OwnerID = null.StringFrom(string(m.Author.ID))
-	image.OwnerName = null.StringFrom(m.Author.Username)
-	image.OwnerAvatar = null.StringFrom(m.Author.Avatar)
+	image := models.DiscordImage{
+		GuildID:     null.StringFrom(strconv.FormatUint(uint64(m.GuildID), 10)),
+		ChannelID:   null.StringFrom(strconv.FormatUint(uint64(m.ChannelID), 10)),
+		FileID:      string(file.ID),
+		FileName:    null.StringFrom(file.Filename),
+		RegDate:     null.TimeFrom(time.Time(m.Timestamp)),
+		ArchiveDate: null.TimeFrom(time.Now()),
+		OwnerID:     null.StringFrom(strconv.FormatUint(uint64(m.Author.ID), 10)),
+		OwnerName:   null.StringFrom(m.Author.Username),
+		OwnerAvatar: null.StringFrom(m.Author.Avatar),
+	}
 
 	err := image.Insert(DB, boil.Infer())
 
@@ -57,8 +55,8 @@ func ScrapImage(m discord.Message) error {
 // CrawlImages : scrap past images
 func CrawlImages(channelID discord.ChannelID, messageID discord.MessageID) (discord.MessageID, error) {
 	messages, err := DiscordAPI.MessagesBefore(channelID, messageID, 100)
-	if err != nil {
-		log.Println(err)
+	if err != nil || len(messages) == 0 {
+		return discord.NullMessageID, err
 	}
 
 	for _, m := range messages {
@@ -67,9 +65,6 @@ func CrawlImages(channelID discord.ChannelID, messageID discord.MessageID) (disc
 		}
 	}
 
-	if len(messages) == 0 {
-		return discord.NullMessageID, err
-	}
 	return messages[len(messages)-1].ID, err
 }
 
@@ -88,11 +83,6 @@ func GetImageUploaders(guildID discord.GuildID) ([]Uploader, error) {
 		qm.Where("guild_id = ?", guildID),
 		qm.GroupBy("owner_id"),
 	).All(DB)
-
-	if err != nil {
-		log.Println(err)
-		return nil, err
-	}
 
 	for _, image := range images {
 		uploaders = append(uploaders, Uploader{

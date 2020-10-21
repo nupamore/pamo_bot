@@ -1,6 +1,7 @@
 package services
 
 import (
+	"encoding/json"
 	"log"
 	"strconv"
 
@@ -48,11 +49,8 @@ func InitChannelsInfo() {
 
 // AddScrapingChannel : add scraping channel
 func AddScrapingChannel(guildID discord.GuildID, channelID discord.ChannelID) {
-	guild, err := models.DiscordGuilds(
-		qm.Where("guild_id=?", guildID),
-	).One(DB)
-
-	guild.ScrapChannelID = null.StringFrom(string(channelID))
+	guild, err := GetGuildInfo(guildID)
+	guild.ScrapChannelID = null.StringFrom(strconv.FormatUint(uint64(channelID), 10))
 	guild.Status = null.StringFrom("WATCH")
 	guild.Update(DB, boil.Infer())
 
@@ -65,10 +63,7 @@ func AddScrapingChannel(guildID discord.GuildID, channelID discord.ChannelID) {
 
 // RemoveScrapingChannel : remove scraping channel
 func RemoveScrapingChannel(guildID discord.GuildID, channelID discord.ChannelID) {
-	guild, err := models.DiscordGuilds(
-		qm.Where("guild_id=?", guildID),
-	).One(DB)
-
+	guild, err := GetGuildInfo(guildID)
 	guild.ScrapChannelID = null.NewString("", false)
 	guild.Status = null.StringFrom("STOP")
 	guild.Update(DB, boil.Infer())
@@ -78,4 +73,26 @@ func RemoveScrapingChannel(guildID discord.GuildID, channelID discord.ChannelID)
 	} else {
 		delete(ScrapingChannelIDs, channelID)
 	}
+}
+
+// GetAllGuildsInfo : get all guilds info
+func GetAllGuildsInfo() ([]*models.DiscordGuild, error) {
+	guilds, err := models.DiscordGuilds().All(DB)
+	return guilds, err
+}
+
+// GetGuildInfo : get a guild info
+func GetGuildInfo(guildID discord.GuildID) (*models.DiscordGuild, error) {
+	guild, err := models.DiscordGuilds(
+		qm.Where("guild_id=?", guildID),
+	).One(DB)
+	return guild, err
+}
+
+// UpdateGuildInfo : update a guild info
+func UpdateGuildInfo(guildID discord.GuildID, options []byte) error {
+	guild, err := GetGuildInfo(guildID)
+	json.Unmarshal(options, &guild)
+	guild.Update(DB, boil.Infer())
+	return err
 }
