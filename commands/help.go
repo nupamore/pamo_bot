@@ -12,22 +12,22 @@ import (
 func (cmd *Commands) Help(_ *gateway.MessageCreateEvent) (*discord.Embed, error) {
 	prefix := os.Getenv("BOT_PREFIX")
 	desc := `
-__$t [target] [text]__
+**$t [target] [text]**
 Translate any [text] to [target] language
-__$Dice [max]__
+**$Dice [max]**
 Get a random number. [max] is the maximum
-__$crawl [on/off]__
+**$crawl [on/off]**
 Activate real-time image scraping in this channel
-__$crawl past__
+**$crawl past**
 Scraping past images
-__$image [username]__
+**$image [username]**
 Get a random image uploaded by [username]
     `
 	description := &discord.Embed{
 		Title:       "Pamo_bot commands list",
 		Description: strings.Replace(desc, "$", prefix, -1),
 		Fields: []discord.EmbedField{
-			{Name: "__Photo Archive__", Value: "https://vrc.nupa.moe"},
+			{Name: "**Photo Archive**", Value: "https://vrc.nupa.moe"},
 		},
 	}
 

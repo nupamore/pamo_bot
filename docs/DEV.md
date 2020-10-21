@@ -1,6 +1,10 @@
 ## Development guide
 
 ```sh
+# go get
+go get github.com/volatiletech/sqlboiler/v4
+go get github.com/volatiletech/null/v8
+go get github.com/volatiletech/sqlboiler/v4/drivers/sqlboiler-mysql
 # Create dotenv
 vim configs/.env
 # Create db config file
