@@ -14,7 +14,7 @@ func (cmd *Commands) Help(_ *gateway.MessageCreateEvent) (*discord.Embed, error)
 	desc := `
 **$t [target] [text]**
 Translate any [text] to [target] language
-**$Dice [max]**
+**$dice [max]**
 Get a random number. [max] is the maximum
 **$crawl [on/off]**
 Activate real-time image scraping in this channel

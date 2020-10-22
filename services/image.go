@@ -31,41 +31,48 @@ func GetRandomImage(guildID discord.GuildID, ownerName string) (*models.DiscordI
 func ScrapImage(m discord.Message) error {
 	file := m.Attachments[0]
 	image := models.DiscordImage{
+		FileID:      strconv.FormatUint(uint64(file.ID), 10),
+		FileName:    null.StringFrom(file.Filename),
+		OwnerName:   null.StringFrom(m.Author.Username),
+		OwnerID:     null.StringFrom(strconv.FormatUint(uint64(m.Author.ID), 10)),
+		OwnerAvatar: null.StringFrom(m.Author.Avatar),
 		GuildID:     null.StringFrom(strconv.FormatUint(uint64(m.GuildID), 10)),
 		ChannelID:   null.StringFrom(strconv.FormatUint(uint64(m.ChannelID), 10)),
-		FileID:      string(file.ID),
-		FileName:    null.StringFrom(file.Filename),
+		Width:       null.StringFrom(strconv.FormatUint(uint64(file.Width), 10)),
+		Height:      null.StringFrom(strconv.FormatUint(uint64(file.Height), 10)),
 		RegDate:     null.TimeFrom(time.Time(m.Timestamp)),
 		ArchiveDate: null.TimeFrom(time.Now()),
-		OwnerID:     null.StringFrom(strconv.FormatUint(uint64(m.Author.ID), 10)),
-		OwnerName:   null.StringFrom(m.Author.Username),
-		OwnerAvatar: null.StringFrom(m.Author.Avatar),
 	}
 
 	err := image.Insert(DB, boil.Infer())
 
-	isDuplicate, _ := regexp.MatchString("Error 1062", err.Error())
-	if err != nil && !isDuplicate {
-		log.Println(err)
-	}
-
-	return nil
-}
-
-// CrawlImages : scrap past images
-func CrawlImages(channelID discord.ChannelID, messageID discord.MessageID) (discord.MessageID, error) {
-	messages, err := DiscordAPI.MessagesBefore(channelID, messageID, 100)
-	if err != nil || len(messages) == 0 {
-		return discord.NullMessageID, err
-	}
-
-	for _, m := range messages {
-		if len(m.Attachments) > 0 && !m.Author.Bot {
-			ScrapImage(m)
+	if err != nil {
+		isDuplicate, _ := regexp.MatchString("Error 1062", err.Error())
+		if !isDuplicate {
+			log.Println(err)
 		}
 	}
 
-	return messages[len(messages)-1].ID, err
+	return err
+}
+
+// CrawlImages : scrap past images
+func CrawlImages(channelID discord.ChannelID, messageID discord.MessageID) (int, discord.MessageID, error) {
+	messages, err := DiscordAPI.MessagesBefore(channelID, messageID, 100)
+	if err != nil || len(messages) == 0 {
+		return 0, discord.NullMessageID, err
+	}
+
+	count := 0
+	for _, m := range messages {
+		if len(m.Attachments) > 0 && !m.Author.Bot {
+			if err := ScrapImage(m); err == nil {
+				count = count + 1
+			}
+		}
+	}
+
+	return count, messages[len(messages)-1].ID, err
 }
 
 // Uploader : uploader model

@@ -30,7 +30,7 @@ func (cmd *Commands) Crawl(m *gateway.MessageCreateEvent, arg bot.RawArguments) 
 
 	// crawl past
 	case "past":
-		max, msgID := 20, m.ID
+		newImg, max, msgID := 0, 20, m.ID
 
 		temp := "Crawling messages (%d / %d)"
 		sentMsg, _ := services.DiscordAPI.SendText(
@@ -39,7 +39,9 @@ func (cmd *Commands) Crawl(m *gateway.MessageCreateEvent, arg bot.RawArguments) 
 		)
 
 		for i := 1; i <= max; i++ {
-			msgID, _ = services.CrawlImages(m.ChannelID, msgID)
+			n, id, _ := services.CrawlImages(m.ChannelID, msgID)
+			newImg = newImg + n
+			msgID = id
 
 			if msgID == discord.NullMessageID {
 				i = max
@@ -54,7 +56,7 @@ func (cmd *Commands) Crawl(m *gateway.MessageCreateEvent, arg bot.RawArguments) 
 				),
 			)
 		}
-		return "Done!", nil
+		return fmt.Sprintf("New images: %d", newImg), nil
 	}
 
 	return "", nil
