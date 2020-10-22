@@ -7,6 +7,7 @@ import (
 
 	"github.com/diamondburned/arikawa/api"
 	"github.com/diamondburned/arikawa/bot"
+	"github.com/diamondburned/arikawa/discord"
 	"github.com/diamondburned/arikawa/gateway"
 	"github.com/joho/godotenv"
 	"github.com/nupamore/pamo_bot/commands"
@@ -43,6 +44,18 @@ func main() {
 				events.NoCommandHandler(m)
 			}
 		})
+
+		// set activity
+		ctx.Gateway.Identifier.IdentifyData = gateway.IdentifyData{
+			Token: token,
+			Presence: &gateway.UpdateStatusData{
+				Game: &discord.Activity{
+					Name: os.Getenv("BOT_STATUS"),
+					Type: discord.GameActivity,
+				},
+				Status: discord.OnlineStatus,
+			},
+		}
 
 		return nil
 	})
