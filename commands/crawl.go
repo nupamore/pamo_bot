@@ -25,7 +25,7 @@ func (cmd *Commands) Crawl(m *gateway.MessageCreateEvent, arg bot.RawArguments) 
 		services.AddScrapingChannel(m.GuildID, m.ChannelID)
 		return "Watching now this channel", nil
 	case "off":
-		services.RemoveScrapingChannel(m.GuildID, m.ChannelID)
+		services.RemoveScrapingChannel(m.GuildID)
 		return "Not watching this channel", nil
 
 	// crawl past

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"strconv"
+	"time"
 
 	"github.com/diamondburned/arikawa/discord"
 	"github.com/nupamore/pamo_bot/models"
@@ -12,14 +13,17 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
+// GuildIDs : guilds
+var GuildIDs map[discord.GuildID]bool
+
 // ScrapingChannelIDs : scraping channels
 var ScrapingChannelIDs map[discord.ChannelID]bool
 
 // AutoTranslateChannelIDs : auto translate channels
 var AutoTranslateChannelIDs map[discord.ChannelID]bool
 
-// InitChannelsInfo : get channels info from server
-func InitChannelsInfo() {
+// InitGuildsInfo : get guilds info from server
+func InitGuildsInfo() {
 	// auto translate channels
 	AutoTranslateChannelIDs = map[discord.ChannelID]bool{
 		681470820220010497: true,
@@ -27,24 +31,29 @@ func InitChannelsInfo() {
 		662308553494626307: true,
 	}
 
-	// scraping channels
-	guilds, err := models.DiscordGuilds(
-		qm.Where("status = 'WATCH'"),
-	).All(DB)
+	guilds, err := GetAllGuildsInfo()
 
 	if err != nil {
-		log.Println("ScrapingChannesl init fail")
+		log.Println("Guilds init fail")
 		panic(err)
 	}
 
+	GuildIDs = map[discord.GuildID]bool{}
 	ScrapingChannelIDs = map[discord.ChannelID]bool{}
 
 	for _, guild := range guilds {
-		idStr := *guild.ScrapChannelID.Ptr()
-		id, _ := strconv.ParseUint(idStr, 10, 64)
+		guildID, _ := strconv.ParseUint(guild.GuildID, 10, 64)
+		GuildIDs[discord.GuildID(guildID)] = true
 
-		ScrapingChannelIDs[discord.ChannelID(id)] = true
+		hasChannel := guild.ScrapChannelID.Valid
+		if hasChannel {
+			channelID, _ := strconv.ParseUint(*guild.ScrapChannelID.Ptr(), 10, 64)
+			ScrapingChannelIDs[discord.ChannelID(channelID)] = true
+		}
 	}
+
+	log.Printf("Guilds count: %d\n", len(GuildIDs))
+	log.Printf("Crawling channels count: %d\n", len(ScrapingChannelIDs))
 }
 
 // AddScrapingChannel : add scraping channel
@@ -52,6 +61,7 @@ func AddScrapingChannel(guildID discord.GuildID, channelID discord.ChannelID) {
 	guild, err := GetGuildInfo(guildID)
 	guild.ScrapChannelID = null.StringFrom(strconv.FormatUint(uint64(channelID), 10))
 	guild.Status = null.StringFrom("WATCH")
+	guild.ModDate = null.TimeFrom(time.Now())
 	guild.Update(DB, boil.Infer())
 
 	if err != nil {
@@ -62,22 +72,29 @@ func AddScrapingChannel(guildID discord.GuildID, channelID discord.ChannelID) {
 }
 
 // RemoveScrapingChannel : remove scraping channel
-func RemoveScrapingChannel(guildID discord.GuildID, channelID discord.ChannelID) {
+func RemoveScrapingChannel(guildID discord.GuildID) {
 	guild, err := GetGuildInfo(guildID)
+	if !guild.ScrapChannelID.Valid {
+		return
+	}
+	channelID, _ := strconv.ParseUint(*guild.ScrapChannelID.Ptr(), 10, 64)
 	guild.ScrapChannelID = null.NewString("", false)
 	guild.Status = null.StringFrom("STOP")
+	guild.ModDate = null.TimeFrom(time.Now())
 	guild.Update(DB, boil.Infer())
 
 	if err != nil {
 		log.Println(err)
 	} else {
-		delete(ScrapingChannelIDs, channelID)
+		delete(ScrapingChannelIDs, discord.ChannelID(channelID))
 	}
 }
 
 // GetAllGuildsInfo : get all guilds info
 func GetAllGuildsInfo() ([]*models.DiscordGuild, error) {
-	guilds, err := models.DiscordGuilds().All(DB)
+	guilds, err := models.DiscordGuilds(
+		qm.Where("status!=?", "KICKED"),
+	).All(DB)
 	return guilds, err
 }
 
