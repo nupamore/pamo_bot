@@ -18,7 +18,7 @@ func scrapImage(m *gateway.MessageCreateEvent) {
 	_, isScrapingChannel := services.ScrapingChannelIDs[m.ChannelID]
 
 	if hasImage && isScrapingChannel {
-		services.ScrapImage(m.Message)
+		services.ScrapImage(m.Message, m.GuildID)
 	}
 }
 

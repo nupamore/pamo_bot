@@ -39,7 +39,7 @@ func (cmd *Commands) Crawl(m *gateway.MessageCreateEvent, arg bot.RawArguments) 
 		)
 
 		for i := 1; i <= max; i++ {
-			n, id, _ := services.CrawlImages(m.ChannelID, msgID)
+			n, id, _ := services.CrawlImages(m.ChannelID, m.GuildID, msgID)
 			newImg = newImg + n
 			msgID = id
 

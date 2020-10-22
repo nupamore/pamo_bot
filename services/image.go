@@ -28,7 +28,7 @@ func GetRandomImage(guildID discord.GuildID, ownerName string) (*models.DiscordI
 }
 
 // ScrapImage : save image info to server
-func ScrapImage(m discord.Message) error {
+func ScrapImage(m discord.Message, guildID discord.GuildID) error {
 	file := m.Attachments[0]
 	image := models.DiscordImage{
 		FileID:      strconv.FormatUint(uint64(file.ID), 10),
@@ -36,7 +36,7 @@ func ScrapImage(m discord.Message) error {
 		OwnerName:   null.StringFrom(m.Author.Username),
 		OwnerID:     null.StringFrom(strconv.FormatUint(uint64(m.Author.ID), 10)),
 		OwnerAvatar: null.StringFrom(m.Author.Avatar),
-		GuildID:     null.StringFrom(strconv.FormatUint(uint64(m.GuildID), 10)),
+		GuildID:     null.StringFrom(strconv.FormatUint(uint64(guildID), 10)),
 		ChannelID:   null.StringFrom(strconv.FormatUint(uint64(m.ChannelID), 10)),
 		Width:       null.StringFrom(strconv.FormatUint(uint64(file.Width), 10)),
 		Height:      null.StringFrom(strconv.FormatUint(uint64(file.Height), 10)),
@@ -57,7 +57,7 @@ func ScrapImage(m discord.Message) error {
 }
 
 // CrawlImages : scrap past images
-func CrawlImages(channelID discord.ChannelID, messageID discord.MessageID) (int, discord.MessageID, error) {
+func CrawlImages(channelID discord.ChannelID, guildID discord.GuildID, messageID discord.MessageID) (int, discord.MessageID, error) {
 	messages, err := DiscordAPI.MessagesBefore(channelID, messageID, 100)
 	if err != nil || len(messages) == 0 {
 		return 0, discord.NullMessageID, err
@@ -66,7 +66,7 @@ func CrawlImages(channelID discord.ChannelID, messageID discord.MessageID) (int,
 	count := 0
 	for _, m := range messages {
 		if len(m.Attachments) > 0 && !m.Author.Bot {
-			if err := ScrapImage(m); err == nil {
+			if err := ScrapImage(m, guildID); err == nil {
 				count = count + 1
 			}
 		}
