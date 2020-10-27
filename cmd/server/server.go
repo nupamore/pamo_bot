@@ -1,18 +1,13 @@
 package main
 
 import (
-	"os"
-
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/recover"
-	"github.com/joho/godotenv"
+	"github.com/nupamore/pamo_bot/configs"
 	"github.com/nupamore/pamo_bot/controllers"
 	"github.com/nupamore/pamo_bot/services"
 )
-
-func init() {
-	godotenv.Load("configs/.env")
-}
 
 func main() {
 	services.DBsetup()
@@ -20,6 +15,10 @@ func main() {
 	app := fiber.New()
 	ctrl := controllers.Controller{}
 	app.Use(recover.New())
+	app.Use(cors.New(cors.Config{
+		AllowOrigins:     configs.Env["WEB_URL"],
+		AllowCredentials: true,
+	}))
 
 	app.Get("/auth/login", ctrl.Login)
 	app.Get("/auth/callback", ctrl.LoginCallback)
@@ -32,5 +31,5 @@ func main() {
 	api.Put("/guilds/:guildID", ctrl.UpdateGuild)
 	api.Get("/guilds/:guildID/uploaders", ctrl.GetUploaders)
 
-	app.Listen(os.Getenv("WEB_PORT"))
+	app.Listen(configs.Env["SERVER_PORT"])
 }

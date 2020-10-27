@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/nupamore/pamo_bot/configs"
 	"github.com/nupamore/pamo_bot/services"
 )
 
@@ -30,14 +31,10 @@ func (ctrl *Controller) LoginCallback(c *fiber.Ctx) error {
 	}
 
 	auth := token.TokenType + " " + token.AccessToken
-	user, err := services.GetUserInfo(auth)
-	if err != nil {
-		return ctrl.SendError(c, AuthError, err)
-	}
-
 	store.Set("Authorization", auth)
 	defer store.Save()
-	return c.JSON(Response{Data: user})
+
+	return c.Redirect(configs.Env["WEB_URL"])
 }
 
 // Logout : [GET] /auth/logout

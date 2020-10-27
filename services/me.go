@@ -3,9 +3,9 @@ package services
 import (
 	"encoding/json"
 	"errors"
-	"os"
 
 	"github.com/monaco-io/request"
+	"github.com/nupamore/pamo_bot/configs"
 )
 
 type errRes struct {
@@ -15,16 +15,17 @@ type errRes struct {
 
 // DiscordUser : discord user
 type DiscordUser struct {
-	ID       string `json:"id"`
-	Username string `json:"username"`
-	Avatar   string `json:"avatar"`
-	Locale   string `json:"locale"`
+	ID            string `json:"id"`
+	Username      string `json:"username"`
+	Discriminator string `json:"discriminator"`
+	Avatar        string `json:"avatar"`
+	Locale        string `json:"locale"`
 }
 
 // GetUserInfo : get user info
 func GetUserInfo(auth string) (*DiscordUser, error) {
 	client := request.Client{
-		URL:    os.Getenv("OAUTH_API") + "/users/@me",
+		URL:    configs.Env["OAUTH_API"] + "/users/@me",
 		Method: "GET",
 		Header: map[string]string{
 			"Authorization": auth,
@@ -58,7 +59,7 @@ type DiscordGuild struct {
 // GetUsersGuilds : get users guilds
 func GetUsersGuilds(auth string) ([]*DiscordGuild, error) {
 	client := request.Client{
-		URL:    os.Getenv("OAUTH_API") + "/users/@me/guilds",
+		URL:    configs.Env["OAUTH_API"] + "/users/@me/guilds",
 		Method: "GET",
 		Header: map[string]string{
 			"Authorization": auth,

@@ -2,30 +2,25 @@ package main
 
 import (
 	"log"
-	"os"
 	"strings"
 
 	"github.com/diamondburned/arikawa/api"
 	"github.com/diamondburned/arikawa/bot"
 	"github.com/diamondburned/arikawa/discord"
 	"github.com/diamondburned/arikawa/gateway"
-	"github.com/joho/godotenv"
 	"github.com/nupamore/pamo_bot/commands"
+	"github.com/nupamore/pamo_bot/configs"
 	"github.com/nupamore/pamo_bot/events"
 	"github.com/nupamore/pamo_bot/services"
 )
-
-func init() {
-	godotenv.Load("configs/.env")
-}
 
 func main() {
 	services.AWSsetup()
 	services.DBsetup()
 	services.InitGuildsInfo()
 
-	token := os.Getenv("BOT_TOKEN")
-	prefix := os.Getenv("BOT_PREFIX")
+	token := configs.Env["BOT_TOKEN"]
+	prefix := configs.Env["BOT_PREFIX"]
 
 	services.DiscordAPI = api.NewClient("Bot " + token)
 
@@ -50,7 +45,7 @@ func main() {
 			Token: token,
 			Presence: &gateway.UpdateStatusData{
 				Game: &discord.Activity{
-					Name: os.Getenv("BOT_STATUS"),
+					Name: configs.Env["BOT_STATUS"],
 					Type: discord.GameActivity,
 				},
 				Status: discord.OnlineStatus,

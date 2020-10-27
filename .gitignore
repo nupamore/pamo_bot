@@ -1,4 +1,5 @@
-configs
+configs/.env
+configs/sqlboiler.toml
 models
 
 # Binaries for programs and plugins

@@ -4,11 +4,11 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"os"
 
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/translate"
 	"github.com/diamondburned/arikawa/api"
+	"github.com/nupamore/pamo_bot/configs"
 	_ "github.com/volatiletech/sqlboiler/v4/drivers/sqlboiler-mysql/driver" // mysql driver
 )
 
@@ -22,10 +22,10 @@ var DB *sql.DB
 func DBsetup() {
 	// db setup
 	dsn := fmt.Sprintf("%s:%s@(%s)/%s?%s",
-		os.Getenv("DB_USER"),
-		os.Getenv("DB_PASS"),
-		os.Getenv("DB_HOST"),
-		os.Getenv("DB_NAME"),
+		configs.Env["DB_USER"],
+		configs.Env["DB_PASS"],
+		configs.Env["DB_HOST"],
+		configs.Env["DB_NAME"],
 		"charset=utf8&parseTime=True&loc=Local",
 	)
 	db, err := sql.Open("mysql", dsn)

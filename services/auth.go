@@ -1,9 +1,8 @@
 package services
 
 import (
-	"os"
-
 	"github.com/gofiber/session/v2"
+	"github.com/nupamore/pamo_bot/configs"
 	"golang.org/x/oauth2"
 )
 
@@ -15,13 +14,13 @@ var Sessions *session.Session
 // AuthSetup : auth init
 func AuthSetup() {
 	authConfig = &oauth2.Config{
-		ClientID:     os.Getenv("OAUTH_KEY"),
-		ClientSecret: os.Getenv("OAUTH_SECRET"),
-		RedirectURL:  os.Getenv("OAUTH_CALLBACK"),
+		ClientID:     configs.Env["OAUTH_KEY"],
+		ClientSecret: configs.Env["OAUTH_SECRET"],
+		RedirectURL:  configs.Env["OAUTH_CALLBACK"],
 		Scopes:       []string{"identify", "guilds"},
 		Endpoint: oauth2.Endpoint{
-			AuthURL:  os.Getenv("OAUTH_ENDPOINT") + "/authorize",
-			TokenURL: os.Getenv("OAUTH_ENDPOINT") + "/token",
+			AuthURL:  configs.Env["OAUTH_ENDPOINT"] + "/authorize",
+			TokenURL: configs.Env["OAUTH_ENDPOINT"] + "/token",
 		},
 	}
 

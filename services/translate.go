@@ -4,9 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"os"
 
 	"github.com/monaco-io/request"
+	"github.com/nupamore/pamo_bot/configs"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/translate"
@@ -40,11 +40,11 @@ type papagoResponse struct {
 // TranslatePapago : translate via papago
 func TranslatePapago(source string, target string, text string) (*string, error) {
 	client := request.Client{
-		URL:    os.Getenv("NAVER_TRANSLATE"),
+		URL:    configs.Env["NAVER_TRANSLATE"],
 		Method: "POST",
 		Header: map[string]string{
-			"X-Naver-Client-Id":     os.Getenv("NAVER_ID"),
-			"X-Naver-Client-Secret": os.Getenv("NAVER_SECRET"),
+			"X-Naver-Client-Id":     configs.Env["NAVER_ID"],
+			"X-Naver-Client-Secret": configs.Env["NAVER_SECRET"],
 		},
 		Body: []byte(fmt.Sprintf(`{
             "source": "%s",
@@ -76,9 +76,9 @@ type LanguageDetectResponse struct {
 // LanguageDetect : detect lang via kakao
 func LanguageDetect(text string) (LanguageDetectResponse, error) {
 	client := request.Client{
-		URL:    os.Getenv("KAKAO_DETECT_LANG"),
+		URL:    configs.Env["KAKAO_DETECT_LANG"],
 		Method: "GET",
-		Header: map[string]string{"Authorization": os.Getenv("KAKAO_KEY")},
+		Header: map[string]string{"Authorization": configs.Env["KAKAO_KEY"]},
 		Params: map[string]string{"query": text},
 	}
 	resp, err := client.Do()

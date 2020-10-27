@@ -1,16 +1,16 @@
 package commands
 
 import (
-	"os"
 	"strings"
 
 	"github.com/diamondburned/arikawa/discord"
 	"github.com/diamondburned/arikawa/gateway"
+	"github.com/nupamore/pamo_bot/configs"
 )
 
 // Help : descriptions
 func (cmd *Commands) Help(_ *gateway.MessageCreateEvent) (*discord.Embed, error) {
-	prefix := os.Getenv("BOT_PREFIX")
+	prefix := configs.Env["BOT_PREFIX"]
 	desc := `
 **$t [target] [text]**
 Translate any [text] to [target] language
