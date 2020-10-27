@@ -25,6 +25,7 @@ func (ctrl *Controller) SendError(c *fiber.Ctx, code int, err error) error {
 
 // error codes
 const (
+	AuthError         = 9000
 	InvalidParamError = 9001
 	DBError           = 9002
 	EtcError          = 9999

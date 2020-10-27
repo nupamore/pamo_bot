@@ -3,14 +3,29 @@ package controllers
 import (
 	"github.com/diamondburned/arikawa/discord"
 	"github.com/gofiber/fiber/v2"
+	"github.com/nupamore/pamo_bot/models"
 	"github.com/nupamore/pamo_bot/services"
 )
 
 // GetGuilds : [GET] /guilds
 func (ctrl *Controller) GetGuilds(c *fiber.Ctx) error {
-	guilds, err := services.GetAllGuildsInfo()
+	store := services.Sessions.Get(c)
+	auth := store.Get("Authorization")
+
+	oauthGuilds, err := services.GetUsersGuilds(auth.(string))
+	serverGuilds, err := services.GetAllGuildsInfo()
 	if err != nil {
 		return ctrl.SendError(c, DBError, err)
+	}
+
+	guilds := []*models.DiscordGuild{}
+
+	for _, og := range oauthGuilds {
+		for _, sg := range serverGuilds {
+			if og.ID == sg.GuildID {
+				guilds = append(guilds, sg)
+			}
+		}
 	}
 
 	return c.JSON(Response{Data: guilds})
