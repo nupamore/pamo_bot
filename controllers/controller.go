@@ -7,11 +7,19 @@ import (
 // Controller : controller
 type Controller struct{}
 
+// PageMeta : page meta
+type PageMeta struct {
+	Size int `json:"size"`
+	Page int `json:"page"`
+	All  int `json:"all"`
+}
+
 // Response : response model
 type Response struct {
-	Code    int         `json:"code"`
-	Message string      `json:"message,omitempty"`
-	Data    interface{} `json:"data,omitempty"`
+	Code      int         `json:"code"`
+	Message   string      `json:"message,omitempty"`
+	Data      interface{} `json:"data,omitempty"`
+	*PageMeta `json:"pageMeta,omitempty"`
 }
 
 // SendError : send error response

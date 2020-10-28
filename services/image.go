@@ -101,3 +101,23 @@ func GetImageUploaders(guildID discord.GuildID) ([]Uploader, error) {
 
 	return uploaders, err
 }
+
+// GetImagesCount : get images count
+func GetImagesCount(guildID discord.GuildID) (int, error) {
+	count, err := models.DiscordImages(
+		qm.Where("guild_id = ?", guildID),
+	).Count(DB)
+
+	return int(count), err
+}
+
+// GetImages : get images with page
+func GetImages(guildID discord.GuildID, size int, page int) (models.DiscordImageSlice, error) {
+	images, err := models.DiscordImages(
+		qm.Where("guild_id = ?", guildID),
+		qm.Limit(size),
+		qm.Offset(size*page),
+	).All(DB)
+
+	return images, err
+}
