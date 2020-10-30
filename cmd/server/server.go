@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/diamondburned/arikawa/api"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/recover"
@@ -12,7 +13,8 @@ import (
 func router(app *fiber.App) {
 	ctrl := controllers.Controller{}
 	// external
-	app.Get("/randomImage/:guildID", ctrl.GetRandomImage)
+	app.Get("/links/:linkID", ctrl.GetLink)
+	app.Put("/links/:linkID", ctrl.LogLink)
 	// auth
 	app.Get("/auth/login", ctrl.Login)
 	app.Get("/auth/callback", ctrl.LoginCallback)
@@ -24,11 +26,15 @@ func router(app *fiber.App) {
 	api.Get("/guilds/:guildID", ctrl.GetGuild)
 	api.Get("/guilds/:guildID/uploaders", ctrl.GetUploaders)
 	api.Get("/guilds/:guildID/images", ctrl.GetImages)
+	api.Get("/links", ctrl.GetLinks)
+	api.Post("/links", ctrl.InitLinks)
+	api.Put("/links/:linkID", ctrl.UpdateLink)
 }
 
 func main() {
 	services.DBsetup()
 	services.AuthSetup()
+	services.DiscordAPI = api.NewClient("Bot " + configs.Env["BOT_TOKEN"])
 
 	app := fiber.New()
 	app.Use(recover.New())

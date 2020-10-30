@@ -32,6 +32,8 @@ func (ctrl *Controller) LoginCallback(c *fiber.Ctx) error {
 
 	auth := token.TokenType + " " + token.AccessToken
 	store.Set("Authorization", auth)
+	user, _ := services.GetUserInfo(auth)
+	store.Set("UserID", user.ID)
 	defer store.Save()
 
 	return c.Redirect(configs.Env["WEB_URL"])

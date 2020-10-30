@@ -16,3 +16,15 @@ go run cmd/bot/bot.go
 # REST Server start
 go run cmd/server/server.go
 ```
+
+## Directory structure
+```
+/cmd            Run go files
+/commands       Discord bot commands
+/configs        Security keys
+/controllers    REST Server endpoints
+/docs           Markdown documents
+/events         Discord bot events
+/models         ORM Models
+/services       Business Logics
+```

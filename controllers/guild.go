@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/diamondburned/arikawa/discord"
@@ -9,26 +8,6 @@ import (
 	"github.com/nupamore/pamo_bot/models"
 	"github.com/nupamore/pamo_bot/services"
 )
-
-// GetRandomImage : [GET] /randomImage/:guildID
-func (ctrl *Controller) GetRandomImage(c *fiber.Ctx) error {
-	guildID, err := discord.ParseSnowflake(c.Params("guildID"))
-	if err != nil {
-		return ctrl.SendError(c, InvalidParamError, err)
-	}
-
-	image, err := services.GetRandomImage(discord.GuildID(guildID), c.Query("uploader"))
-	if err != nil {
-		return ctrl.SendError(c, DBError, err)
-	}
-
-	return c.Redirect(fmt.Sprintf(
-		"https://cdn.discordapp.com/attachments/%s/%s/%s",
-		*image.ChannelID.Ptr(),
-		image.FileID,
-		*image.FileName.Ptr(),
-	))
-}
 
 // GetGuilds : [GET] /guilds
 func (ctrl *Controller) GetGuilds(c *fiber.Ctx) error {
