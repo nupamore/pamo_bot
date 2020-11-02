@@ -16,12 +16,12 @@ import (
 // GuildCreated : join guild
 func GuildCreated(g *gateway.GuildCreateEvent) {
 	// exist already
-	if _, exist := services.GuildIDs[g.ID]; exist {
+	if _, exist := services.Guild.GuildIDs[g.ID]; exist {
 		return
 	}
 
 	// not exist but comeback
-	guild, _ := services.GetGuildInfo(g.ID)
+	guild, _ := services.Guild.Info(g.ID)
 	if guild != nil {
 		log.Println("Comeback guild")
 		guild.Status = null.StringFrom("COMEBACK")
@@ -43,7 +43,7 @@ func GuildCreated(g *gateway.GuildCreateEvent) {
 		ModDate:        null.TimeFrom(time.Now()),
 	}
 	if err := guild.Insert(services.DB, boil.Infer()); err != nil {
-		services.GuildIDs[g.ID] = true
+		services.Guild.GuildIDs[g.ID] = true
 	}
 }
 
@@ -51,11 +51,11 @@ func GuildCreated(g *gateway.GuildCreateEvent) {
 func GuildDeleted(g *gateway.GuildDeleteEvent) {
 	log.Println("Bot is kicked")
 
-	guild, _ := services.GetGuildInfo(g.ID)
+	guild, _ := services.Guild.Info(g.ID)
 	guild.Status = null.StringFrom("KICKED")
 	guild.ModDate = null.TimeFrom(time.Now())
 	guild.Update(services.DB, boil.Infer())
 
-	services.RemoveScrapingChannel(g.ID)
-	delete(services.GuildIDs, g.ID)
+	services.Guild.RemoveScrapingChannel(g.ID)
+	delete(services.Guild.GuildIDs, g.ID)
 }

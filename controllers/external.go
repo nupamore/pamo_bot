@@ -15,7 +15,7 @@ func (ctrl *Controller) GetRandomImage(c *fiber.Ctx) error {
 		return ctrl.SendError(c, InvalidParamError, err)
 	}
 
-	image, err := services.GetRandomImage(discord.GuildID(guildID), c.Query("uploader"))
+	image, err := services.Image.Random(discord.GuildID(guildID), c.Query("uploader"))
 	if err != nil {
 		return ctrl.SendError(c, DBError, err)
 	}
@@ -32,7 +32,7 @@ func (ctrl *Controller) GetRandomImage(c *fiber.Ctx) error {
 func (ctrl *Controller) GetLink(c *fiber.Ctx) error {
 	linkID := c.Params("linkID")
 
-	link, err := services.GetLink(linkID)
+	link, err := services.Link.Info(linkID)
 	if err != nil {
 		return ctrl.SendError(c, DBError, err)
 	}
@@ -45,6 +45,10 @@ func (ctrl *Controller) GetLink(c *fiber.Ctx) error {
 // LogLink : [PUT] /links/:linkID
 func (ctrl *Controller) LogLink(c *fiber.Ctx) error {
 	linkID := c.Params("linkID")
-	services.LogLink(linkID)
-	return nil
+	err := services.Link.Log(linkID)
+	if err != nil {
+		return ctrl.SendError(c, DBError, err)
+	}
+
+	return c.JSON(Response{})
 }

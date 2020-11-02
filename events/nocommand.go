@@ -15,29 +15,29 @@ func NoCommandHandler(m *gateway.MessageCreateEvent) {
 
 func scrapImage(m *gateway.MessageCreateEvent) {
 	hasImage := len(m.Attachments) > 0
-	_, isScrapingChannel := services.ScrapingChannelIDs[m.ChannelID]
+	_, isScrapingChannel := services.Guild.ScrapingChannelIDs[m.ChannelID]
 
 	if hasImage && isScrapingChannel {
-		services.ScrapImage(m.Message, m.GuildID)
+		services.Image.Scrap(m.Message, m.GuildID)
 	}
 }
 
 func autoTranslate(m *gateway.MessageCreateEvent) {
-	_, isAutoTranslateChannel := services.AutoTranslateChannelIDs[m.ChannelID]
+	_, isAutoTranslateChannel := services.Guild.AutoTranslateChannelIDs[m.ChannelID]
 	if !isAutoTranslateChannel || len(m.Content) > 100 {
 		return
 	}
 
-	detect, err := services.LanguageDetect(m.Content)
+	detect, err := services.Translate.PapagoDetect(m.Content)
 	if err != nil {
 		return
 	}
 	var translatedText *string
 	switch detect.LanguageInfo[0].Code {
 	case "kr":
-		translatedText, err = services.TranslatePapago("ko", "ja", m.Content)
+		translatedText, err = services.Translate.Papago("ko", "ja", m.Content)
 	case "jp":
-		translatedText, err = services.TranslatePapago("ja", "ko", m.Content)
+		translatedText, err = services.Translate.Papago("ja", "ko", m.Content)
 	default:
 		return
 	}

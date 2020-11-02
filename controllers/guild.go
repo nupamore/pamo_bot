@@ -11,11 +11,11 @@ import (
 
 // GetGuilds : [GET] /guilds
 func (ctrl *Controller) GetGuilds(c *fiber.Ctx) error {
-	store := services.Sessions.Get(c)
+	store := services.Auth.Sessions.Get(c)
 	auth := store.Get("Authorization")
 
-	oauthGuilds, err := services.GetUsersGuilds(auth.(string))
-	serverGuilds, err := services.GetAllGuildsInfo()
+	oauthGuilds, err := services.Auth.Guilds(auth.(string))
+	serverGuilds, err := services.Guild.All()
 	if err != nil {
 		return ctrl.SendError(c, DBError, err)
 	}
@@ -39,7 +39,7 @@ func (ctrl *Controller) GetGuild(c *fiber.Ctx) error {
 	if err != nil {
 		return ctrl.SendError(c, InvalidParamError, err)
 	}
-	guild, err := services.GetGuildInfo(discord.GuildID(guildID))
+	guild, err := services.Guild.Info(discord.GuildID(guildID))
 	if err != nil {
 		return ctrl.SendError(c, DBError, err)
 	}
@@ -53,7 +53,7 @@ func (ctrl *Controller) UpdateGuild(c *fiber.Ctx) error {
 	if err != nil {
 		return ctrl.SendError(c, InvalidParamError, err)
 	}
-	err = services.UpdateGuildInfo(discord.GuildID(guildID), c.Body())
+	err = services.Guild.Update(discord.GuildID(guildID), c.Body())
 	if err != nil {
 		return ctrl.SendError(c, DBError, err)
 	}
@@ -67,7 +67,7 @@ func (ctrl *Controller) GetUploaders(c *fiber.Ctx) error {
 		return ctrl.SendError(c, InvalidParamError, err)
 	}
 
-	uploaders, err := services.GetImageUploaders(discord.GuildID(guildID))
+	uploaders, err := services.Image.Uploaders(discord.GuildID(guildID))
 	if err != nil {
 		return ctrl.SendError(c, DBError, err)
 	}
@@ -84,7 +84,7 @@ func (ctrl *Controller) GetImages(c *fiber.Ctx) error {
 		return ctrl.SendError(c, InvalidParamError, err)
 	}
 
-	all, err := services.GetImagesCount(discord.GuildID(guildID))
+	all, err := services.Image.Count(discord.GuildID(guildID))
 	if all < size*page {
 		page = all / size
 	}
@@ -94,7 +94,7 @@ func (ctrl *Controller) GetImages(c *fiber.Ctx) error {
 		All:  all,
 	}
 
-	images, err := services.GetImages(discord.GuildID(guildID), size, page)
+	images, err := services.Image.List(discord.GuildID(guildID), size, page)
 	if err != nil {
 		return ctrl.SendError(c, DBError, err)
 	}

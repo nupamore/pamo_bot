@@ -17,7 +17,7 @@ import (
 func main() {
 	services.AWSsetup()
 	services.DBsetup()
-	services.InitGuildsInfo()
+	services.Guild.BotStart()
 
 	token := configs.Env["BOT_TOKEN"]
 	prefix := configs.Env["BOT_PREFIX"]

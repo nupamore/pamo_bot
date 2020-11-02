@@ -14,7 +14,7 @@ func (cmd *Commands) Crawl(m *gateway.MessageCreateEvent, arg bot.RawArguments) 
 	switch arg {
 	// current status
 	case "":
-		_, isScrapingChannel := services.ScrapingChannelIDs[m.ChannelID]
+		_, isScrapingChannel := services.Guild.ScrapingChannelIDs[m.ChannelID]
 		if isScrapingChannel {
 			return "Watching now this channel", nil
 		}
@@ -22,10 +22,10 @@ func (cmd *Commands) Crawl(m *gateway.MessageCreateEvent, arg bot.RawArguments) 
 
 	// change status
 	case "on":
-		services.AddScrapingChannel(m.GuildID, m.ChannelID)
+		services.Guild.AddScrapingChannel(m.GuildID, m.ChannelID)
 		return "Watching now this channel", nil
 	case "off":
-		services.RemoveScrapingChannel(m.GuildID)
+		services.Guild.RemoveScrapingChannel(m.GuildID)
 		return "Not watching this channel", nil
 
 	// crawl past
@@ -39,7 +39,7 @@ func (cmd *Commands) Crawl(m *gateway.MessageCreateEvent, arg bot.RawArguments) 
 		)
 
 		for i := 1; i <= max; i++ {
-			n, id, _ := services.CrawlImages(m.ChannelID, m.GuildID, msgID)
+			n, id, _ := services.Image.Crawl(m.ChannelID, m.GuildID, msgID)
 			newImg = newImg + n
 			msgID = id
 

@@ -19,7 +19,7 @@ func (cmd *Commands) Image(m *gateway.MessageCreateEvent, arg bot.RawArguments) 
 	embed := discord.Embed{}
 
 	// query a random image
-	image, err := services.GetRandomImage(m.GuildID, ownerName)
+	image, err := services.Image.Random(m.GuildID, ownerName)
 	if err != nil {
 		embed.Description = "Couldn't find any image"
 		return &embed, nil

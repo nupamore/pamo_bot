@@ -12,8 +12,14 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/translate"
 )
 
-// TranslateAWS : translate via aws
-func TranslateAWS(source string, target string, text string) (*translate.TranslateTextOutput, error) {
+// TranslateService : translate service
+type TranslateService struct{}
+
+// Translate : translate service instance
+var Translate = TranslateService{}
+
+// AWS : translate via aws
+func (s *TranslateService) AWS(source string, target string, text string) (*translate.TranslateTextOutput, error) {
 	response, err := AWStranslate.TranslateText(context.Background(), &translate.TranslateTextInput{
 		SourceLanguageCode: aws.String(source),
 		TargetLanguageCode: aws.String(target),
@@ -37,8 +43,8 @@ type papagoResponse struct {
 	ErrorMessage string        `json:"errorMessage"`
 }
 
-// TranslatePapago : translate via papago
-func TranslatePapago(source string, target string, text string) (*string, error) {
+// Papago : translate via papago
+func (s *TranslateService) Papago(source string, target string, text string) (*string, error) {
 	client := request.Client{
 		URL:    configs.Env["NAVER_TRANSLATE"],
 		Method: "POST",
@@ -66,15 +72,15 @@ type languageInfo struct {
 	Confidence float64 `json:"confidence"`
 }
 
-// LanguageDetectResponse : detect lang response
-type LanguageDetectResponse struct {
+// PapagoDetectResponse : detect lang response
+type PapagoDetectResponse struct {
 	ErrorType    string         `json:"errorType"`
 	Message      string         `json:"message"`
 	LanguageInfo []languageInfo `json:"language_info"`
 }
 
-// LanguageDetect : detect lang via kakao
-func LanguageDetect(text string) (LanguageDetectResponse, error) {
+// PapagoDetect : detect lang via kakao
+func (s *TranslateService) PapagoDetect(text string) (PapagoDetectResponse, error) {
 	client := request.Client{
 		URL:    configs.Env["KAKAO_DETECT_LANG"],
 		Method: "GET",
@@ -83,7 +89,7 @@ func LanguageDetect(text string) (LanguageDetectResponse, error) {
 	}
 	resp, err := client.Do()
 
-	var result LanguageDetectResponse
+	var result PapagoDetectResponse
 	json.Unmarshal(resp.Data, &result)
 
 	return result, err

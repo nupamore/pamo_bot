@@ -13,8 +13,14 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
-// GetRandomImage : get a random image
-func GetRandomImage(guildID discord.GuildID, ownerName string) (*models.DiscordImage, error) {
+// ImageService : image service
+type ImageService struct{}
+
+// Image : imag service instance
+var Image = ImageService{}
+
+// Random : get a random image
+func (s *ImageService) Random(guildID discord.GuildID, ownerName string) (*models.DiscordImage, error) {
 	if ownerName == "" {
 		ownerName = "%"
 	}
@@ -27,8 +33,8 @@ func GetRandomImage(guildID discord.GuildID, ownerName string) (*models.DiscordI
 	return image, err
 }
 
-// ScrapImage : save image info to server
-func ScrapImage(m discord.Message, guildID discord.GuildID) error {
+// Scrap : save image info to server
+func (s *ImageService) Scrap(m discord.Message, guildID discord.GuildID) error {
 	file := m.Attachments[0]
 	image := models.DiscordImage{
 		FileID:      strconv.FormatUint(uint64(file.ID), 10),
@@ -56,8 +62,8 @@ func ScrapImage(m discord.Message, guildID discord.GuildID) error {
 	return err
 }
 
-// CrawlImages : scrap past images
-func CrawlImages(channelID discord.ChannelID, guildID discord.GuildID, messageID discord.MessageID) (int, discord.MessageID, error) {
+// Crawl : scrap past images
+func (s *ImageService) Crawl(channelID discord.ChannelID, guildID discord.GuildID, messageID discord.MessageID) (int, discord.MessageID, error) {
 	messages, err := DiscordAPI.MessagesBefore(channelID, messageID, 100)
 	if err != nil || len(messages) == 0 {
 		return 0, discord.NullMessageID, err
@@ -66,7 +72,7 @@ func CrawlImages(channelID discord.ChannelID, guildID discord.GuildID, messageID
 	count := 0
 	for _, m := range messages {
 		if len(m.Attachments) > 0 && !m.Author.Bot {
-			if err := ScrapImage(m, guildID); err == nil {
+			if err := s.Scrap(m, guildID); err == nil {
 				count = count + 1
 			}
 		}
@@ -75,16 +81,16 @@ func CrawlImages(channelID discord.ChannelID, guildID discord.GuildID, messageID
 	return count, messages[len(messages)-1].ID, err
 }
 
-// Uploader : uploader model
-type Uploader struct {
+// ImageUploader : uploader model
+type ImageUploader struct {
 	OwnerID     string      `json:"id"`
 	OwnerName   string      `json:"name"`
 	OwnerAvatar null.String `json:"avatar"`
 }
 
-// GetImageUploaders : get uploaders in guild
-func GetImageUploaders(guildID discord.GuildID) ([]Uploader, error) {
-	uploaders := []Uploader{}
+// Uploaders : get uploaders in guild
+func (s *ImageService) Uploaders(guildID discord.GuildID) ([]ImageUploader, error) {
+	uploaders := []ImageUploader{}
 	images, err := models.DiscordImages(
 		qm.Select("owner_id", "owner_name", "owner_avatar"),
 		qm.Where("guild_id = ?", guildID),
@@ -92,7 +98,7 @@ func GetImageUploaders(guildID discord.GuildID) ([]Uploader, error) {
 	).All(DB)
 
 	for _, image := range images {
-		uploaders = append(uploaders, Uploader{
+		uploaders = append(uploaders, ImageUploader{
 			OwnerID:     *image.OwnerID.Ptr(),
 			OwnerName:   *image.OwnerName.Ptr(),
 			OwnerAvatar: image.OwnerAvatar,
@@ -102,8 +108,8 @@ func GetImageUploaders(guildID discord.GuildID) ([]Uploader, error) {
 	return uploaders, err
 }
 
-// GetImagesCount : get images count
-func GetImagesCount(guildID discord.GuildID) (int, error) {
+// Count : get images count
+func (s *ImageService) Count(guildID discord.GuildID) (int, error) {
 	count, err := models.DiscordImages(
 		qm.Where("guild_id = ?", guildID),
 	).Count(DB)
@@ -111,8 +117,8 @@ func GetImagesCount(guildID discord.GuildID) (int, error) {
 	return int(count), err
 }
 
-// GetImages : get images with page
-func GetImages(guildID discord.GuildID, size int, page int) (models.DiscordImageSlice, error) {
+// List : get images with page
+func (s *ImageService) List(guildID discord.GuildID, size int, page int) (models.DiscordImageSlice, error) {
 	images, err := models.DiscordImages(
 		qm.Where("guild_id = ?", guildID),
 		qm.Limit(size),

@@ -4,6 +4,7 @@ import (
 	"crypto/sha1"
 	b64 "encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"math/rand"
 	"regexp"
@@ -19,8 +20,13 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
-// Hash : sha1 6 letters to base64
-func Hash(input string) string {
+// LinkService : link service
+type LinkService struct{}
+
+// Link : link service instance
+var Link = LinkService{}
+
+func newHash(input string) string {
 	h := sha1.New()
 	h.Write([]byte(input))
 	bs := h.Sum(nil)
@@ -29,10 +35,10 @@ func Hash(input string) string {
 	return str
 }
 
-// InitLinks : init links
-func InitLinks(ownerID discord.UserID) (models.SimpleDynamicLinkSlice, error) {
+// Create : init links
+func (s *LinkService) Create(ownerID discord.UserID) (models.SimpleDynamicLinkSlice, error) {
 	// init already
-	links, err := GetLinks(ownerID)
+	links, err := s.List(ownerID)
 	if len(links) > 0 {
 		return links, err
 	}
@@ -44,11 +50,11 @@ func InitLinks(ownerID discord.UserID) (models.SimpleDynamicLinkSlice, error) {
 	for i := 0; i < 5; i++ {
 		rand := strconv.Itoa(rand.Int())
 		input := string(ownerID) + rand
-		hash := Hash(input)
+		hash := newHash(input)
 
 		link := models.SimpleDynamicLink{
 			LinkID:  hash,
-			OwnerID: null.UintFrom(uint(ownerID)),
+			OwnerID: null.StringFrom(strconv.FormatUint(uint64(ownerID), 10)),
 			Status:  null.StringFrom("CREATED"),
 			RegDate: null.TimeFrom(time.Now()),
 		}
@@ -64,8 +70,8 @@ func InitLinks(ownerID discord.UserID) (models.SimpleDynamicLinkSlice, error) {
 	return newLinks, err
 }
 
-// GetLinks : get links
-func GetLinks(ownerID discord.UserID) (models.SimpleDynamicLinkSlice, error) {
+// List : get links
+func (s *LinkService) List(ownerID discord.UserID) (models.SimpleDynamicLinkSlice, error) {
 	links, err := models.SimpleDynamicLinks(
 		qm.Where("owner_id = ?", ownerID),
 	).All(DB)
@@ -73,8 +79,8 @@ func GetLinks(ownerID discord.UserID) (models.SimpleDynamicLinkSlice, error) {
 	return links, err
 }
 
-// GetLink : get link
-func GetLink(linkID string) (*models.SimpleDynamicLink, error) {
+// Info : get link
+func (s *LinkService) Info(linkID string) (*models.SimpleDynamicLink, error) {
 	link, err := models.SimpleDynamicLinks(
 		qm.Where("link_id = ?", linkID),
 	).One(DB)
@@ -82,40 +88,50 @@ func GetLink(linkID string) (*models.SimpleDynamicLink, error) {
 	return link, err
 }
 
-// UpdateLink : update link
-func UpdateLink(linkID string, ownerID discord.UserID, options []byte) error {
-	link, err := GetLink(linkID)
+// Update : update link
+func (s *LinkService) Update(linkID string, ownerID discord.UserID, options []byte) (models.SimpleDynamicLink, error) {
+	link, err := s.Info(linkID)
 	json.Unmarshal(options, &link)
-	link.Update(DB, boil.Infer())
-	return err
+
+	if !s.Test(link) {
+		err = errors.New("Link is invalid")
+	} else {
+		link.Status = null.StringFrom("UPDATED")
+		link.Update(DB, boil.Infer())
+	}
+
+	return *link, err
 }
 
-// LogLink : log link
-func LogLink(linkID string) error {
+// Log : log link
+func (s *LinkService) Log(linkID string) error {
 	now := time.Now()
+	tempTime, _ := time.Parse(time.RFC3339, "2012-11-01T22:08:41+00:00")
+	temp := null.TimeFrom(tempTime)
+
 	lastLog, _ := models.LinkLogs(
-		qm.Where("link_id = ?", linkID),
-		qm.OrderBy("reg_date DESC"),
+		qm.Where("link_id = ?", temp),
+		qm.OrderBy("view_date DESC"),
 	).One(DB)
-	if lastLog != nil {
-		if 24 < now.Sub(lastLog.ViewDate.Time).Hours() {
-			go LinkValidTest(linkID)
-		}
+	if lastLog != nil && 24 < now.Sub(lastLog.ViewDate.Time).Hours() {
+		go func() {
+			link, _ := s.Info(linkID)
+			if !s.Test(link) {
+				s.TestFailEvent(link)
+			}
+		}()
 	}
 
 	newLog := models.LinkLog{
-		LinkID:   null.TimeFrom(now),
+		LinkID:   temp,
 		ViewDate: null.TimeFrom(now),
 	}
 
 	return newLog.Insert(DB, boil.Infer())
 }
 
-// LinkValidTest : link target valid test
-func LinkValidTest(linkID string) {
-	link, _ := GetLink(linkID)
-	ownerID := discord.UserID(*link.OwnerID.Ptr())
-
+// Test : link target valid test
+func (s *LinkService) Test(link *models.SimpleDynamicLink) bool {
 	client := request.Client{
 		URL:    *link.Target.Ptr(),
 		Method: "GET",
@@ -123,15 +139,36 @@ func LinkValidTest(linkID string) {
 	resp, err := client.Do()
 
 	if err != nil || resp.StatusCode() != 200 {
-		message := fmt.Sprintf(
-			"**Link validation failed**\nlinkID: %s\ntarget: %s",
-			linkID,
-			*link.Target.Ptr(),
-		)
-		go SendDM(ownerID, message)
-
-		link.Target = null.StringFrom("404")
-		link.Status = null.StringFrom("ERROR")
-		link.Update(DB, boil.Infer())
+		return false
 	}
+
+	return true
+}
+
+// TestFailEvent : link valid fail event
+func (s *LinkService) TestFailEvent(link *models.SimpleDynamicLink) {
+	// send dm
+	ownerID, _ := strconv.ParseUint(*link.OwnerID.Ptr(), 10, 64)
+	message := fmt.Sprintf(
+		"**Link validation failed**\nlinkID: %s\ntarget: %s",
+		link.LinkID,
+		*link.Target.Ptr(),
+	)
+	go SendDM(discord.UserID(ownerID), message)
+
+	// target change 404
+	var target string
+	if link.Type.Ptr() == nil {
+		target = "https://github.com/404"
+	} else {
+		switch *link.Type.Ptr() {
+		case "image":
+			target = "https://github.com/404"
+		case "video":
+			target = "https://github.com/404"
+		}
+	}
+	link.Target = null.StringFrom(target)
+	link.Status = null.StringFrom("ERROR")
+	link.Update(DB, boil.Infer())
 }

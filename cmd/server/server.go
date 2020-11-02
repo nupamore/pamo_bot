@@ -33,7 +33,7 @@ func router(app *fiber.App) {
 
 func main() {
 	services.DBsetup()
-	services.AuthSetup()
+	services.Auth.Setup()
 	services.DiscordAPI = api.NewClient("Bot " + configs.Env["BOT_TOKEN"])
 
 	app := fiber.New()

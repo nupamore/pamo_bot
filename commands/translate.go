@@ -26,7 +26,7 @@ func (cmd *Commands) T(m *gateway.MessageCreateEvent, arg bot.RawArguments) (str
 		return "Too many senetences", nil
 	}
 
-	result, err := services.TranslateAWS("auto", target, text)
+	result, err := services.Translate.AWS("auto", target, text)
 	if err != nil {
 		return "Invalid target language", nil
 	}

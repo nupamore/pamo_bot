@@ -10,7 +10,7 @@ import (
 // Middleware : Middleware
 func (ctrl *Controller) Middleware(c *fiber.Ctx) error {
 	// oauth check
-	store := services.Sessions.Get(c)
+	store := services.Auth.Sessions.Get(c)
 	auth := store.Get("Authorization")
 	if auth == nil {
 		return ctrl.SendError(c, AuthError, errors.New("Need login"))

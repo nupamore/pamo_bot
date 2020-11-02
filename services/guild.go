@@ -13,52 +13,53 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
-// GuildIDs : guilds
-var GuildIDs map[discord.GuildID]bool
+// GuildService : guild service
+type GuildService struct {
+	GuildIDs                map[discord.GuildID]bool
+	ScrapingChannelIDs      map[discord.ChannelID]bool
+	AutoTranslateChannelIDs map[discord.ChannelID]bool
+}
 
-// ScrapingChannelIDs : scraping channels
-var ScrapingChannelIDs map[discord.ChannelID]bool
+// Guild : guild service instance
+var Guild = GuildService{}
 
-// AutoTranslateChannelIDs : auto translate channels
-var AutoTranslateChannelIDs map[discord.ChannelID]bool
-
-// InitGuildsInfo : get guilds info from server
-func InitGuildsInfo() {
+// BotStart : get guilds info from server
+func (s *GuildService) BotStart() {
 	// auto translate channels
-	AutoTranslateChannelIDs = map[discord.ChannelID]bool{
+	s.AutoTranslateChannelIDs = map[discord.ChannelID]bool{
 		681470820220010497: true,
 		507170236265398272: true,
 		662308553494626307: true,
 	}
 
-	guilds, err := GetAllGuildsInfo()
+	guilds, err := s.All()
 
 	if err != nil {
 		log.Println("Guilds init fail")
 		panic(err)
 	}
 
-	GuildIDs = map[discord.GuildID]bool{}
-	ScrapingChannelIDs = map[discord.ChannelID]bool{}
+	s.GuildIDs = map[discord.GuildID]bool{}
+	s.ScrapingChannelIDs = map[discord.ChannelID]bool{}
 
 	for _, guild := range guilds {
 		guildID, _ := strconv.ParseUint(guild.GuildID, 10, 64)
-		GuildIDs[discord.GuildID(guildID)] = true
+		s.GuildIDs[discord.GuildID(guildID)] = true
 
 		hasChannel := guild.ScrapChannelID.Valid
 		if hasChannel {
 			channelID, _ := strconv.ParseUint(*guild.ScrapChannelID.Ptr(), 10, 64)
-			ScrapingChannelIDs[discord.ChannelID(channelID)] = true
+			s.ScrapingChannelIDs[discord.ChannelID(channelID)] = true
 		}
 	}
 
-	log.Printf("Guilds count: %d\n", len(GuildIDs))
-	log.Printf("Crawling channels count: %d\n", len(ScrapingChannelIDs))
+	log.Printf("Guilds count: %d\n", len(s.GuildIDs))
+	log.Printf("Crawling channels count: %d\n", len(s.ScrapingChannelIDs))
 }
 
 // AddScrapingChannel : add scraping channel
-func AddScrapingChannel(guildID discord.GuildID, channelID discord.ChannelID) {
-	guild, err := GetGuildInfo(guildID)
+func (s *GuildService) AddScrapingChannel(guildID discord.GuildID, channelID discord.ChannelID) {
+	guild, err := s.Info(guildID)
 	guild.ScrapChannelID = null.StringFrom(strconv.FormatUint(uint64(channelID), 10))
 	guild.Status = null.StringFrom("WATCH")
 	guild.ModDate = null.TimeFrom(time.Now())
@@ -67,13 +68,13 @@ func AddScrapingChannel(guildID discord.GuildID, channelID discord.ChannelID) {
 	if err != nil {
 		log.Println(err)
 	} else {
-		ScrapingChannelIDs[channelID] = true
+		s.ScrapingChannelIDs[channelID] = true
 	}
 }
 
 // RemoveScrapingChannel : remove scraping channel
-func RemoveScrapingChannel(guildID discord.GuildID) {
-	guild, err := GetGuildInfo(guildID)
+func (s *GuildService) RemoveScrapingChannel(guildID discord.GuildID) {
+	guild, err := s.Info(guildID)
 	if !guild.ScrapChannelID.Valid {
 		return
 	}
@@ -86,29 +87,29 @@ func RemoveScrapingChannel(guildID discord.GuildID) {
 	if err != nil {
 		log.Println(err)
 	} else {
-		delete(ScrapingChannelIDs, discord.ChannelID(channelID))
+		delete(s.ScrapingChannelIDs, discord.ChannelID(channelID))
 	}
 }
 
-// GetAllGuildsInfo : get all guilds info
-func GetAllGuildsInfo() ([]*models.DiscordGuild, error) {
+// All : get all guilds info
+func (s *GuildService) All() ([]*models.DiscordGuild, error) {
 	guilds, err := models.DiscordGuilds(
 		qm.Where("status!=?", "KICKED"),
 	).All(DB)
 	return guilds, err
 }
 
-// GetGuildInfo : get a guild info
-func GetGuildInfo(guildID discord.GuildID) (*models.DiscordGuild, error) {
+// Info : get a guild info
+func (s *GuildService) Info(guildID discord.GuildID) (*models.DiscordGuild, error) {
 	guild, err := models.DiscordGuilds(
 		qm.Where("guild_id=?", guildID),
 	).One(DB)
 	return guild, err
 }
 
-// UpdateGuildInfo : update a guild info
-func UpdateGuildInfo(guildID discord.GuildID, options []byte) error {
-	guild, err := GetGuildInfo(guildID)
+// Update : update a guild info
+func (s *GuildService) Update(guildID discord.GuildID, options []byte) error {
+	guild, err := s.Info(guildID)
 	json.Unmarshal(options, &guild)
 	guild.Update(DB, boil.Infer())
 	return err
