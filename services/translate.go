@@ -46,7 +46,7 @@ type papagoResponse struct {
 // Papago : translate via papago
 func (s *TranslateService) Papago(source string, target string, text string) (*string, error) {
 	client := request.Client{
-		URL:    configs.Env["NAVER_TRANSLATE"],
+		URL:    configs.Env["NAVER_API"] + "/v1/papago/n2mt",
 		Method: "POST",
 		Header: map[string]string{
 			"X-Naver-Client-Id":     configs.Env["NAVER_ID"],
@@ -72,24 +72,24 @@ type languageInfo struct {
 	Confidence float64 `json:"confidence"`
 }
 
-// PapagoDetectResponse : detect lang response
-type PapagoDetectResponse struct {
+// KakakoDetectResponse : detect lang response
+type KakakoDetectResponse struct {
 	ErrorType    string         `json:"errorType"`
 	Message      string         `json:"message"`
 	LanguageInfo []languageInfo `json:"language_info"`
 }
 
-// PapagoDetect : detect lang via kakao
-func (s *TranslateService) PapagoDetect(text string) (PapagoDetectResponse, error) {
+// KakakoDetect : detect lang via kakao
+func (s *TranslateService) KakakoDetect(text string) (KakakoDetectResponse, error) {
 	client := request.Client{
-		URL:    configs.Env["KAKAO_DETECT_LANG"],
+		URL:    configs.Env["KAKAO_API"] + "/v3/translation/language/detect",
 		Method: "GET",
 		Header: map[string]string{"Authorization": configs.Env["KAKAO_KEY"]},
 		Params: map[string]string{"query": text},
 	}
 	resp, err := client.Do()
 
-	var result PapagoDetectResponse
+	var result KakakoDetectResponse
 	json.Unmarshal(resp.Data, &result)
 
 	return result, err

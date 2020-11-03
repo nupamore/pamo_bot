@@ -14,6 +14,7 @@ import (
 	"github.com/diamondburned/arikawa/discord"
 	"github.com/monaco-io/request"
 
+	"github.com/nupamore/pamo_bot/configs"
 	"github.com/nupamore/pamo_bot/models"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
@@ -106,11 +107,8 @@ func (s *LinkService) Update(linkID string, ownerID discord.UserID, options []by
 // Log : log link
 func (s *LinkService) Log(linkID string) error {
 	now := time.Now()
-	tempTime, _ := time.Parse(time.RFC3339, "2012-11-01T22:08:41+00:00")
-	temp := null.TimeFrom(tempTime)
-
 	lastLog, _ := models.LinkLogs(
-		qm.Where("link_id = ?", temp),
+		qm.Where("link_id = ?", linkID),
 		qm.OrderBy("view_date DESC"),
 	).One(DB)
 	if lastLog != nil && 24 < now.Sub(lastLog.ViewDate.Time).Hours() {
@@ -123,7 +121,7 @@ func (s *LinkService) Log(linkID string) error {
 	}
 
 	newLog := models.LinkLog{
-		LinkID:   temp,
+		LinkID:   null.StringFrom(linkID),
 		ViewDate: null.TimeFrom(now),
 	}
 
@@ -157,15 +155,18 @@ func (s *LinkService) TestFailEvent(link *models.SimpleDynamicLink) {
 	go SendDM(discord.UserID(ownerID), message)
 
 	// target change 404
-	var target string
-	if link.Type.Ptr() == nil {
-		target = "https://github.com/404"
-	} else {
-		switch *link.Type.Ptr() {
+	target := configs.Env["LINK_RESERVE_PAGE"]
+	reserve := link.ReserveTarget.Ptr()
+	typ := link.Type.Ptr()
+
+	if reserve != nil {
+		target = *reserve
+	} else if typ != nil {
+		switch *typ {
 		case "image":
-			target = "https://github.com/404"
+			target = configs.Env["LINK_RESERVE_IMAGE"]
 		case "video":
-			target = "https://github.com/404"
+			target = configs.Env["LINK_RESERVE_VIDEO"]
 		}
 	}
 	link.Target = null.StringFrom(target)

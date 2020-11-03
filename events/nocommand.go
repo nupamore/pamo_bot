@@ -28,7 +28,7 @@ func autoTranslate(m *gateway.MessageCreateEvent) {
 		return
 	}
 
-	detect, err := services.Translate.PapagoDetect(m.Content)
+	detect, err := services.Translate.KakakoDetect(m.Content)
 	if err != nil {
 		return
 	}
