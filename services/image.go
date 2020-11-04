@@ -1,12 +1,21 @@
 package services
 
 import (
+	"errors"
+	"fmt"
+	"image"
+	_ "image/gif"  // gif
+	_ "image/jpeg" // jpg
+	_ "image/png"  // png
 	"log"
 	"regexp"
 	"strconv"
+	"sync"
 	"time"
 
+	"github.com/buckket/go-blurhash"
 	"github.com/diamondburned/arikawa/discord"
+	"github.com/monaco-io/request"
 	"github.com/nupamore/pamo_bot/models"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
@@ -36,6 +45,13 @@ func (s *ImageService) Random(guildID discord.GuildID, ownerName string) (*model
 // Scrap : save image info to server
 func (s *ImageService) Scrap(m discord.Message, guildID discord.GuildID) error {
 	file := m.Attachments[0]
+	blur, _ := BlurHash(fmt.Sprintf(
+		"https://media.discordapp.net/attachments/%s/%s/%s?width=48&height=27",
+		m.ChannelID,
+		file.ID,
+		file.Filename,
+	))
+
 	image := models.DiscordImage{
 		FileID:      strconv.FormatUint(uint64(file.ID), 10),
 		FileName:    null.StringFrom(file.Filename),
@@ -46,6 +62,7 @@ func (s *ImageService) Scrap(m discord.Message, guildID discord.GuildID) error {
 		ChannelID:   null.StringFrom(strconv.FormatUint(uint64(m.ChannelID), 10)),
 		Width:       null.StringFrom(strconv.FormatUint(uint64(file.Width), 10)),
 		Height:      null.StringFrom(strconv.FormatUint(uint64(file.Height), 10)),
+		Blurhash:    null.StringFromPtr(blur),
 		RegDate:     null.TimeFrom(time.Time(m.Timestamp)),
 		ArchiveDate: null.TimeFrom(time.Now()),
 	}
@@ -69,14 +86,20 @@ func (s *ImageService) Crawl(channelID discord.ChannelID, guildID discord.GuildI
 		return 0, discord.NullMessageID, err
 	}
 
+	var wg sync.WaitGroup
 	count := 0
 	for _, m := range messages {
 		if len(m.Attachments) > 0 && !m.Author.Bot {
-			if err := s.Scrap(m, guildID); err == nil {
-				count = count + 1
-			}
+			wg.Add(1)
+			go func(m discord.Message) {
+				if err := s.Scrap(m, guildID); err == nil {
+					count = count + 1
+				}
+				wg.Done()
+			}(m)
 		}
 	}
+	wg.Wait()
 
 	return count, messages[len(messages)-1].ID, err
 }
@@ -126,4 +149,32 @@ func (s *ImageService) List(guildID discord.GuildID, size int, page int) (models
 	).All(DB)
 
 	return images, err
+}
+
+// BlurHash : url to blurhash
+func BlurHash(url string) (*string, error) {
+	client := request.Client{
+		URL:    url,
+		Method: "GET",
+	}
+	resp, err := client.Resp()
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode != 200 {
+		return nil, errors.New("Not found")
+	}
+	if match, _ := regexp.MatchString("image", resp.Header.Get("Content-type")); !match {
+		return nil, errors.New("Not image")
+	}
+	defer resp.Body.Close()
+
+	// image
+	loadedImage, _, err := image.Decode(resp.Body)
+	blur, err := blurhash.Encode(4, 3, loadedImage)
+	if err != nil {
+		return nil, err
+	}
+
+	return &blur, nil
 }

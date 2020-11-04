@@ -24,7 +24,7 @@ func scrapImage(m *gateway.MessageCreateEvent) {
 
 func autoTranslate(m *gateway.MessageCreateEvent) {
 	_, isAutoTranslateChannel := services.Guild.AutoTranslateChannelIDs[m.ChannelID]
-	if !isAutoTranslateChannel || len(m.Content) > 100 {
+	if !isAutoTranslateChannel || len(m.Content) > 100 || len(m.Attachments) > 0 {
 		return
 	}
 
