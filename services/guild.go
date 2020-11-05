@@ -95,6 +95,7 @@ func (s *GuildService) RemoveScrapingChannel(guildID discord.GuildID) {
 func (s *GuildService) All() ([]*models.DiscordGuild, error) {
 	guilds, err := models.DiscordGuilds(
 		qm.Where("status!=?", "KICKED"),
+		qm.OrderBy("guild_name"),
 	).All(DB)
 	return guilds, err
 }

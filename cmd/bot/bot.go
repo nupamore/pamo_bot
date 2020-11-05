@@ -2,8 +2,10 @@ package main
 
 import (
 	"log"
+	"net/http"
 	"strings"
 
+	"github.com/arl/statsviz"
 	"github.com/diamondburned/arikawa/api"
 	"github.com/diamondburned/arikawa/bot"
 	"github.com/diamondburned/arikawa/discord"
@@ -15,6 +17,12 @@ import (
 )
 
 func main() {
+	if configs.Env["DEBUG_PORT"] != "" {
+		go func() {
+			statsviz.RegisterDefault()
+			log.Fatal(http.ListenAndServe(configs.Env["DEBUG_PORT"], nil))
+		}()
+	}
 	services.AWSsetup()
 	services.DBsetup()
 	services.Guild.BotStart()

@@ -36,6 +36,7 @@ func init() {
 		"NAVER_SECRET":          "",
 
 		// config
+		"DEBUG_PORT":         "",
 		"BOT_PREFIX":         "",
 		"BOT_STATUS":         "",
 		"SERVER_PORT":        "",

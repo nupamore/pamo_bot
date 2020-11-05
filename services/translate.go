@@ -1,11 +1,14 @@
 package services
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"net/http"
+	"net/url"
 
-	"github.com/monaco-io/request"
 	"github.com/nupamore/pamo_bot/configs"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -45,23 +48,28 @@ type papagoResponse struct {
 
 // Papago : translate via papago
 func (s *TranslateService) Papago(source string, target string, text string) (*string, error) {
-	client := request.Client{
-		URL:    configs.Env["NAVER_API"] + "/v1/papago/n2mt",
-		Method: "POST",
-		Header: map[string]string{
-			"X-Naver-Client-Id":     configs.Env["NAVER_ID"],
-			"X-Naver-Client-Secret": configs.Env["NAVER_SECRET"],
-		},
-		Body: []byte(fmt.Sprintf(`{
-            "source": "%s",
-            "target": "%s",
-            "text": "%s"
-        }`, source, target, text)),
+	uri := configs.Env["NAVER_API"] + "/v1/papago/n2mt"
+	body := bytes.NewBufferString(fmt.Sprintf(`{
+        "source": "%s",
+        "target": "%s",
+        "text": "%s"
+    }`, source, target, text))
+
+	req, _ := http.NewRequest("POST", uri, body)
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("X-Naver-Client-Id", configs.Env["NAVER_ID"])
+	req.Header.Add("X-Naver-Client-Secret", configs.Env["NAVER_SECRET"])
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
 	}
-	resp, err := client.Do()
 
 	var res papagoResponse
-	json.Unmarshal(resp.Data, &res)
+	data, _ := ioutil.ReadAll(resp.Body)
+	resp.Body.Close()
+	json.Unmarshal(data, &res)
 
 	return &res.Message.Result.Text, err
 }
@@ -81,16 +89,22 @@ type KakakoDetectResponse struct {
 
 // KakakoDetect : detect lang via kakao
 func (s *TranslateService) KakakoDetect(text string) (KakakoDetectResponse, error) {
-	client := request.Client{
-		URL:    configs.Env["KAKAO_API"] + "/v3/translation/language/detect",
-		Method: "GET",
-		Header: map[string]string{"Authorization": configs.Env["KAKAO_KEY"]},
-		Params: map[string]string{"query": text},
+	uri := configs.Env["KAKAO_API"] + "/v3/translation/language/detect"
+	query := "?query=" + url.QueryEscape(text)
+
+	req, _ := http.NewRequest("GET", uri+query, nil)
+	req.Header.Add("Authorization", configs.Env["KAKAO_KEY"])
+
+	var res KakakoDetectResponse
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return res, err
 	}
-	resp, err := client.Do()
 
-	var result KakakoDetectResponse
-	json.Unmarshal(resp.Data, &result)
+	data, _ := ioutil.ReadAll(resp.Body)
+	resp.Body.Close()
+	json.Unmarshal(data, &res)
 
-	return result, err
+	return res, err
 }

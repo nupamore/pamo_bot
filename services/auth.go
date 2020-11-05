@@ -3,9 +3,10 @@ package services
 import (
 	"encoding/json"
 	"errors"
+	"io/ioutil"
+	"net/http"
 
 	"github.com/gofiber/session/v2"
-	"github.com/monaco-io/request"
 	"github.com/nupamore/pamo_bot/configs"
 	"golang.org/x/oauth2"
 )
@@ -61,26 +62,24 @@ type DiscordUser struct {
 
 // Info : get user info
 func (s *AuthService) Info(auth string) (*DiscordUser, error) {
-	client := request.Client{
-		URL:    configs.Env["OAUTH_API"] + "/users/@me",
-		Method: "GET",
-		Header: map[string]string{
-			"Authorization": auth,
-		},
-	}
-	resp, err := client.Do()
+	req, _ := http.NewRequest("GET", configs.Env["OAUTH_API"]+"/users/@me", nil)
+	req.Header.Add("Authorization", auth)
+	client := &http.Client{}
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}
 
 	var res errRes
-	json.Unmarshal(resp.Data, &res)
+	data, _ := ioutil.ReadAll(resp.Body)
+	resp.Body.Close()
+	json.Unmarshal(data, &res)
 	if res.Message != "" {
 		return nil, errors.New("OAuth api error")
 	}
 
 	var user DiscordUser
-	json.Unmarshal(resp.Data, &user)
+	json.Unmarshal(data, &user)
 	return &user, nil
 }
 
@@ -95,25 +94,23 @@ type DiscordGuild struct {
 
 // Guilds : get users guilds
 func (s *AuthService) Guilds(auth string) ([]*DiscordGuild, error) {
-	client := request.Client{
-		URL:    configs.Env["OAUTH_API"] + "/users/@me/guilds",
-		Method: "GET",
-		Header: map[string]string{
-			"Authorization": auth,
-		},
-	}
-	resp, err := client.Do()
+	req, _ := http.NewRequest("GET", configs.Env["OAUTH_API"]+"/users/@me/guilds", nil)
+	req.Header.Add("Authorization", auth)
+	client := &http.Client{}
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}
 
 	var res errRes
-	json.Unmarshal(resp.Data, &res)
+	data, _ := ioutil.ReadAll(resp.Body)
+	resp.Body.Close()
+	json.Unmarshal(data, &res)
 	if res.Message != "" {
 		return nil, errors.New("OAuth api error")
 	}
 
 	var guilds []*DiscordGuild
-	json.Unmarshal(resp.Data, &guilds)
+	json.Unmarshal(data, &guilds)
 	return guilds, nil
 }

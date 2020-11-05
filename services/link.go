@@ -7,12 +7,12 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
+	"net/http"
 	"regexp"
 	"strconv"
 	"time"
 
 	"github.com/diamondburned/arikawa/discord"
-	"github.com/monaco-io/request"
 
 	"github.com/nupamore/pamo_bot/configs"
 	"github.com/nupamore/pamo_bot/models"
@@ -130,13 +130,8 @@ func (s *LinkService) Log(linkID string) error {
 
 // Test : link target valid test
 func (s *LinkService) Test(link *models.SimpleDynamicLink) bool {
-	client := request.Client{
-		URL:    *link.Target.Ptr(),
-		Method: "GET",
-	}
-	resp, err := client.Do()
-
-	if err != nil || resp.StatusCode() != 200 {
+	resp, err := http.Get(*link.Target.Ptr())
+	if err != nil || resp.StatusCode != 200 {
 		return false
 	}
 

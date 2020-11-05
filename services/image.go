@@ -7,15 +7,15 @@ import (
 	_ "image/gif"  // gif
 	_ "image/jpeg" // jpg
 	_ "image/png"  // png
-	"log"
+	"net/http"
 	"regexp"
 	"strconv"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/buckket/go-blurhash"
 	"github.com/diamondburned/arikawa/discord"
-	"github.com/monaco-io/request"
 	"github.com/nupamore/pamo_bot/models"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
@@ -45,15 +45,21 @@ func (s *ImageService) Random(guildID discord.GuildID, ownerName string) (*model
 // Scrap : save image info to server
 func (s *ImageService) Scrap(m discord.Message, guildID discord.GuildID) error {
 	file := m.Attachments[0]
+	fileID := strconv.FormatUint(uint64(file.ID), 10)
+	image, err := models.FindDiscordImage(DB, fileID)
+
+	if image != nil {
+		return errors.New("duplicate")
+	}
+
 	blur, _ := BlurHash(fmt.Sprintf(
 		"https://media.discordapp.net/attachments/%s/%s/%s?width=48&height=27",
 		m.ChannelID,
 		file.ID,
 		file.Filename,
 	))
-
-	image := models.DiscordImage{
-		FileID:      strconv.FormatUint(uint64(file.ID), 10),
+	image = &models.DiscordImage{
+		FileID:      fileID,
 		FileName:    null.StringFrom(file.Filename),
 		OwnerName:   null.StringFrom(m.Author.Username),
 		OwnerID:     null.StringFrom(strconv.FormatUint(uint64(m.Author.ID), 10)),
@@ -66,15 +72,8 @@ func (s *ImageService) Scrap(m discord.Message, guildID discord.GuildID) error {
 		RegDate:     null.TimeFrom(time.Time(m.Timestamp)),
 		ArchiveDate: null.TimeFrom(time.Now()),
 	}
-
-	err := image.Insert(DB, boil.Infer())
-
-	if err != nil {
-		isDuplicate, _ := regexp.MatchString("Error 1062", err.Error())
-		if !isDuplicate {
-			log.Println(err)
-		}
-	}
+	// err = image.Upsert(DB, boil.Whitelist("blurhash"), boil.Infer())
+	err = image.Insert(DB, boil.Infer())
 
 	return err
 }
@@ -87,13 +86,14 @@ func (s *ImageService) Crawl(channelID discord.ChannelID, guildID discord.GuildI
 	}
 
 	var wg sync.WaitGroup
-	count := 0
+	var count uint32 = 0
+
 	for _, m := range messages {
 		if len(m.Attachments) > 0 && !m.Author.Bot {
 			wg.Add(1)
 			go func(m discord.Message) {
 				if err := s.Scrap(m, guildID); err == nil {
-					count = count + 1
+					atomic.AddUint32(&count, 1)
 				}
 				wg.Done()
 			}(m)
@@ -101,7 +101,7 @@ func (s *ImageService) Crawl(channelID discord.ChannelID, guildID discord.GuildI
 	}
 	wg.Wait()
 
-	return count, messages[len(messages)-1].ID, err
+	return int(atomic.LoadUint32(&count)), messages[len(messages)-1].ID, err
 }
 
 // ImageUploader : uploader model
@@ -118,6 +118,7 @@ func (s *ImageService) Uploaders(guildID discord.GuildID) ([]ImageUploader, erro
 		qm.Select("owner_id", "owner_name", "owner_avatar"),
 		qm.Where("guild_id = ?", guildID),
 		qm.GroupBy("owner_id"),
+		qm.OrderBy("owner_name"),
 	).All(DB)
 
 	for _, image := range images {
@@ -146,6 +147,7 @@ func (s *ImageService) List(guildID discord.GuildID, size int, page int) (models
 		qm.Where("guild_id = ?", guildID),
 		qm.Limit(size),
 		qm.Offset(size*page),
+		qm.OrderBy("reg_date DESC"),
 	).All(DB)
 
 	return images, err
@@ -153,11 +155,7 @@ func (s *ImageService) List(guildID discord.GuildID, size int, page int) (models
 
 // BlurHash : url to blurhash
 func BlurHash(url string) (*string, error) {
-	client := request.Client{
-		URL:    url,
-		Method: "GET",
-	}
-	resp, err := client.Resp()
+	resp, err := http.Get(url)
 	if err != nil {
 		return nil, err
 	}
@@ -167,10 +165,10 @@ func BlurHash(url string) (*string, error) {
 	if match, _ := regexp.MatchString("image", resp.Header.Get("Content-type")); !match {
 		return nil, errors.New("Not image")
 	}
-	defer resp.Body.Close()
 
 	// image
 	loadedImage, _, err := image.Decode(resp.Body)
+	resp.Body.Close()
 	blur, err := blurhash.Encode(4, 3, loadedImage)
 	if err != nil {
 		return nil, err
