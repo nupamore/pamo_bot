@@ -8,6 +8,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/config v0.1.1
 	github.com/aws/aws-sdk-go-v2/service/translate v0.26.0
 	github.com/buckket/go-blurhash v1.1.0
+	github.com/dchest/uniuri v0.0.0-20200228104902-7aecb25e1fe5
 	github.com/diamondburned/arikawa v1.3.2
 	github.com/friendsofgo/errors v0.9.2
 	github.com/go-sql-driver/mysql v1.5.0

@@ -1,6 +1,10 @@
 package main
 
 import (
+	"log"
+	"net/http"
+
+	"github.com/arl/statsviz"
 	"github.com/diamondburned/arikawa/api"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -32,6 +36,12 @@ func router(app *fiber.App) {
 }
 
 func main() {
+	if configs.Env["DEBUG_PORT"] != "" {
+		go func() {
+			statsviz.RegisterDefault()
+			log.Fatal(http.ListenAndServe(configs.Env["DEBUG_PORT"], nil))
+		}()
+	}
 	services.DBsetup()
 	services.Auth.Setup()
 	services.DiscordAPI = api.NewClient("Bot " + configs.Env["BOT_TOKEN"])

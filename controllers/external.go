@@ -1,11 +1,10 @@
 package controllers
 
 import (
-	"fmt"
-
 	"github.com/diamondburned/arikawa/discord"
 	"github.com/gofiber/fiber/v2"
 	"github.com/nupamore/pamo_bot/services"
+	"github.com/nupamore/pamo_bot/utils"
 )
 
 // GetRandomImage : [GET] /randomImage/:guildID
@@ -20,8 +19,7 @@ func (ctrl *Controller) GetRandomImage(c *fiber.Ctx) error {
 		return ctrl.SendError(c, DBError, err)
 	}
 
-	return c.Redirect(fmt.Sprintf(
-		"https://cdn.discordapp.com/attachments/%s/%s/%s",
+	return c.Redirect(utils.DiscordImageCDN(
 		*image.ChannelID.Ptr(),
 		image.FileID,
 		*image.FileName.Ptr(),

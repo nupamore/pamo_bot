@@ -69,10 +69,10 @@ func (s *AuthService) Info(auth string) (*DiscordUser, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer resp.Body.Close()
 
 	var res errRes
 	data, _ := ioutil.ReadAll(resp.Body)
-	resp.Body.Close()
 	json.Unmarshal(data, &res)
 	if res.Message != "" {
 		return nil, errors.New("OAuth api error")
@@ -101,10 +101,10 @@ func (s *AuthService) Guilds(auth string) ([]*DiscordGuild, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer resp.Body.Close()
 
 	var res errRes
 	data, _ := ioutil.ReadAll(resp.Body)
-	resp.Body.Close()
 	json.Unmarshal(data, &res)
 	if res.Message != "" {
 		return nil, errors.New("OAuth api error")

@@ -1,21 +1,19 @@
 package services
 
 import (
-	"crypto/sha1"
-	b64 "encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"math/rand"
 	"net/http"
-	"regexp"
 	"strconv"
 	"time"
 
+	"github.com/dchest/uniuri"
 	"github.com/diamondburned/arikawa/discord"
 
 	"github.com/nupamore/pamo_bot/configs"
 	"github.com/nupamore/pamo_bot/models"
+	"github.com/nupamore/pamo_bot/utils"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -27,15 +25,6 @@ type LinkService struct{}
 // Link : link service instance
 var Link = LinkService{}
 
-func newHash(input string) string {
-	h := sha1.New()
-	h.Write([]byte(input))
-	bs := h.Sum(nil)
-	str := b64.URLEncoding.EncodeToString(bs[:3])
-
-	return str
-}
-
 // Create : init links
 func (s *LinkService) Create(ownerID discord.UserID) (models.SimpleDynamicLinkSlice, error) {
 	// init already
@@ -45,13 +34,10 @@ func (s *LinkService) Create(ownerID discord.UserID) (models.SimpleDynamicLinkSl
 	}
 
 	// create
-	rand.Seed(time.Now().UnixNano())
 	var newLinks models.SimpleDynamicLinkSlice
 
 	for i := 0; i < 5; i++ {
-		rand := strconv.Itoa(rand.Int())
-		input := string(ownerID) + rand
-		hash := newHash(input)
+		hash := uniuri.NewLen(4)
 
 		link := models.SimpleDynamicLink{
 			LinkID:  hash,
@@ -60,11 +46,8 @@ func (s *LinkService) Create(ownerID discord.UserID) (models.SimpleDynamicLinkSl
 			RegDate: null.TimeFrom(time.Now()),
 		}
 		err = link.Insert(DB, boil.Infer())
-		if err != nil {
-			isDuplicate, _ := regexp.MatchString("Error 1062", err.Error())
-			if isDuplicate {
-				i = i - 1
-			}
+		if utils.IsDuplicate(err) {
+			i = i - 1
 		}
 		newLinks = append(newLinks, &link)
 	}

@@ -2,7 +2,6 @@ package services
 
 import (
 	"errors"
-	"fmt"
 	"image"
 	_ "image/gif"  // gif
 	_ "image/jpeg" // jpg
@@ -17,6 +16,7 @@ import (
 	"github.com/buckket/go-blurhash"
 	"github.com/diamondburned/arikawa/discord"
 	"github.com/nupamore/pamo_bot/models"
+	"github.com/nupamore/pamo_bot/utils"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -52,11 +52,11 @@ func (s *ImageService) Scrap(m discord.Message, guildID discord.GuildID) error {
 		return errors.New("duplicate")
 	}
 
-	blur, _ := BlurHash(fmt.Sprintf(
-		"https://media.discordapp.net/attachments/%s/%s/%s?width=48&height=27",
-		m.ChannelID,
-		file.ID,
+	blur, _ := BlurHash(utils.DiscordMediaServer(
+		string(m.ChannelID),
+		string(file.ID),
 		file.Filename,
+		"width=48&height=27",
 	))
 	image = &models.DiscordImage{
 		FileID:      fileID,
@@ -104,16 +104,16 @@ func (s *ImageService) Crawl(channelID discord.ChannelID, guildID discord.GuildI
 	return int(atomic.LoadUint32(&count)), messages[len(messages)-1].ID, err
 }
 
-// ImageUploader : uploader model
-type ImageUploader struct {
+// Uploader : uploader model
+type Uploader struct {
 	OwnerID     string      `json:"id"`
 	OwnerName   string      `json:"name"`
 	OwnerAvatar null.String `json:"avatar"`
 }
 
 // Uploaders : get uploaders in guild
-func (s *ImageService) Uploaders(guildID discord.GuildID) ([]ImageUploader, error) {
-	uploaders := []ImageUploader{}
+func (s *ImageService) Uploaders(guildID discord.GuildID) ([]Uploader, error) {
+	uploaders := []Uploader{}
 	images, err := models.DiscordImages(
 		qm.Select("owner_id", "owner_name", "owner_avatar"),
 		qm.Where("guild_id = ?", guildID),
@@ -122,7 +122,7 @@ func (s *ImageService) Uploaders(guildID discord.GuildID) ([]ImageUploader, erro
 	).All(DB)
 
 	for _, image := range images {
-		uploaders = append(uploaders, ImageUploader{
+		uploaders = append(uploaders, Uploader{
 			OwnerID:     *image.OwnerID.Ptr(),
 			OwnerName:   *image.OwnerName.Ptr(),
 			OwnerAvatar: image.OwnerAvatar,
@@ -159,6 +159,8 @@ func BlurHash(url string) (*string, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer resp.Body.Close()
+
 	if resp.StatusCode != 200 {
 		return nil, errors.New("Not found")
 	}
@@ -168,7 +170,6 @@ func BlurHash(url string) (*string, error) {
 
 	// image
 	loadedImage, _, err := image.Decode(resp.Body)
-	resp.Body.Close()
 	blur, err := blurhash.Encode(4, 3, loadedImage)
 	if err != nil {
 		return nil, err

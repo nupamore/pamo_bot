@@ -1,12 +1,11 @@
 package commands
 
 import (
-	"fmt"
-
 	"github.com/diamondburned/arikawa/bot"
 	"github.com/diamondburned/arikawa/discord"
 	"github.com/diamondburned/arikawa/gateway"
 	"github.com/nupamore/pamo_bot/services"
+	"github.com/nupamore/pamo_bot/utils"
 )
 
 // Image : get a random image from this guild
@@ -27,8 +26,7 @@ func (cmd *Commands) Image(m *gateway.MessageCreateEvent, arg bot.RawArguments) 
 
 	embed.Footer = &discord.EmbedFooter{Text: "📷 " + *image.OwnerName.Ptr()}
 	embed.Timestamp = discord.NewTimestamp(*image.RegDate.Ptr())
-	embed.Image = &discord.EmbedImage{URL: fmt.Sprintf(
-		"https://cdn.discordapp.com/attachments/%s/%s/%s",
+	embed.Image = &discord.EmbedImage{URL: utils.DiscordImageCDN(
 		*image.ChannelID.Ptr(),
 		image.FileID,
 		*image.FileName.Ptr(),

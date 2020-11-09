@@ -65,10 +65,10 @@ func (s *TranslateService) Papago(source string, target string, text string) (*s
 	if err != nil {
 		return nil, err
 	}
+	defer resp.Body.Close()
 
 	var res papagoResponse
 	data, _ := ioutil.ReadAll(resp.Body)
-	resp.Body.Close()
 	json.Unmarshal(data, &res)
 
 	return &res.Message.Result.Text, err
@@ -101,9 +101,9 @@ func (s *TranslateService) KakakoDetect(text string) (KakakoDetectResponse, erro
 	if err != nil {
 		return res, err
 	}
+	defer resp.Body.Close()
 
 	data, _ := ioutil.ReadAll(resp.Body)
-	resp.Body.Close()
 	json.Unmarshal(data, &res)
 
 	return res, err
