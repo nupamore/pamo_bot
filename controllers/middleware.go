@@ -7,11 +7,11 @@ import (
 	"github.com/nupamore/pamo_bot/services"
 )
 
-// Middleware : Middleware
-func (ctrl *Controller) Middleware(c *fiber.Ctx) error {
+// AuthFilter : api middleware
+func (ctrl *Controller) AuthFilter(c *fiber.Ctx) error {
 	// oauth check
-	store := services.Auth.Sessions.Get(c)
-	auth := store.Get("Authorization")
+	sess, _ := services.Auth.Store.Get(c)
+	auth := sess.Get("Authorization")
 	if auth == nil {
 		return ctrl.SendError(c, AuthError, errors.New("Need login"))
 	}

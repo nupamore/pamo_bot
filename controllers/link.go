@@ -8,8 +8,8 @@ import (
 
 // GetLinks : [GET] /links
 func (ctrl *Controller) GetLinks(c *fiber.Ctx) error {
-	store := services.Auth.Sessions.Get(c)
-	id := store.Get("UserID")
+	sess, _ := services.Auth.Store.Get(c)
+	id := sess.Get("UserID")
 	ownerID, _ := discord.ParseSnowflake(id.(string))
 	linkIDs, _ := services.Link.List(discord.UserID(ownerID))
 
@@ -18,8 +18,8 @@ func (ctrl *Controller) GetLinks(c *fiber.Ctx) error {
 
 // InitLinks : [POST] /links
 func (ctrl *Controller) InitLinks(c *fiber.Ctx) error {
-	store := services.Auth.Sessions.Get(c)
-	id := store.Get("UserID")
+	sess, _ := services.Auth.Store.Get(c)
+	id := sess.Get("UserID")
 	ownerID, _ := discord.ParseSnowflake(id.(string))
 	linkIDs, _ := services.Link.Create(discord.UserID(ownerID))
 
@@ -28,8 +28,8 @@ func (ctrl *Controller) InitLinks(c *fiber.Ctx) error {
 
 // UpdateLink : [PUT] /links/:linkID
 func (ctrl *Controller) UpdateLink(c *fiber.Ctx) error {
-	store := services.Auth.Sessions.Get(c)
-	id := store.Get("UserID")
+	sess, _ := services.Auth.Store.Get(c)
+	id := sess.Get("UserID")
 	ownerID, _ := discord.ParseSnowflake(id.(string))
 	linkID := c.Params("linkID")
 

@@ -6,15 +6,15 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/gofiber/session/v2"
+	"github.com/gofiber/fiber/v2/middleware/session"
 	"github.com/nupamore/pamo_bot/configs"
 	"golang.org/x/oauth2"
 )
 
 // AuthService : auth service
 type AuthService struct {
-	Config   *oauth2.Config
-	Sessions *session.Session
+	Config *oauth2.Config
+	Store  *session.Store
 }
 
 // Auth : auth service instance
@@ -32,7 +32,7 @@ func (s *AuthService) Setup() {
 			TokenURL: configs.Env["OAUTH_ENDPOINT"] + "/token",
 		},
 	}
-	s.Sessions = session.New()
+	s.Store = session.New()
 }
 
 // LoginURL : get login url

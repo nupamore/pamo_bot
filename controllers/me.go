@@ -7,8 +7,8 @@ import (
 
 // GetMyInfo : [GET] /me
 func (ctrl *Controller) GetMyInfo(c *fiber.Ctx) error {
-	store := services.Auth.Sessions.Get(c)
-	auth := store.Get("Authorization")
+	sess, _ := services.Auth.Store.Get(c)
+	auth := sess.Get("Authorization")
 
 	user, err := services.Auth.Info(auth.(string))
 	if err != nil {

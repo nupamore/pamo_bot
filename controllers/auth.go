@@ -10,18 +10,17 @@ import (
 
 // Login : [GET] /auth/login
 func (ctrl *Controller) Login(c *fiber.Ctx) error {
-	store := services.Auth.Sessions.Get(c)
-	defer store.Save()
-
-	url := services.Auth.LoginURL(store.ID())
+	sess, _ := services.Auth.Store.Get(c)
+	sess.Save()
+	url := services.Auth.LoginURL(sess.ID())
 	return c.Redirect(url)
 }
 
 // LoginCallback : [GET] /auth/callback
 func (ctrl *Controller) LoginCallback(c *fiber.Ctx) error {
-	store := services.Auth.Sessions.Get(c)
+	sess, _ := services.Auth.Store.Get(c)
 
-	if c.Query("state") != store.ID() {
+	if c.Query("state") != sess.ID() {
 		return ctrl.SendError(c, AuthError, errors.New("Invalid session state"))
 	}
 
@@ -31,17 +30,17 @@ func (ctrl *Controller) LoginCallback(c *fiber.Ctx) error {
 	}
 
 	auth := token.TokenType + " " + token.AccessToken
-	store.Set("Authorization", auth)
+	sess.Set("Authorization", auth)
 	user, _ := services.Auth.Info(auth)
-	store.Set("UserID", user.ID)
-	defer store.Save()
+	sess.Set("UserID", user.ID)
+	defer sess.Save()
 
 	return c.Redirect(configs.Env["WEB_URL"])
 }
 
 // Logout : [GET] /auth/logout
 func (ctrl *Controller) Logout(c *fiber.Ctx) error {
-	store := services.Auth.Sessions.Get(c)
-	store.Destroy()
+	sess, _ := services.Auth.Store.Get(c)
+	sess.Destroy()
 	return c.JSON(Response{})
 }

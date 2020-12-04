@@ -24,7 +24,7 @@ func router(app *fiber.App) {
 	app.Get("/auth/callback", ctrl.LoginCallback)
 	app.Get("/auth/logout", ctrl.Logout)
 	// internal
-	api := app.Group("/api/v1", ctrl.Middleware)
+	api := app.Group("/api/v1", ctrl.AuthFilter)
 	api.Get("/me", ctrl.GetMyInfo)
 	api.Get("/guilds", ctrl.GetGuilds)
 	api.Get("/guilds/:guildID", ctrl.GetGuild)

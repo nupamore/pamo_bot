@@ -11,8 +11,8 @@ import (
 
 // GetGuilds : [GET] /guilds
 func (ctrl *Controller) GetGuilds(c *fiber.Ctx) error {
-	store := services.Auth.Sessions.Get(c)
-	auth := store.Get("Authorization")
+	sess, _ := services.Auth.Store.Get(c)
+	auth := sess.Get("Authorization")
 
 	oauthGuilds, err := services.Auth.Guilds(auth.(string))
 	serverGuilds, err := services.Guild.All()
