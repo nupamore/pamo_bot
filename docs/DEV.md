@@ -16,6 +16,10 @@ go run cmd/bot/bot.go
 # REST Server start
 go run cmd/server/server.go
 ```
+docker
+```sh
+docker build -t pamo-bot .
+```
 
 ## Directory structure
 ```
