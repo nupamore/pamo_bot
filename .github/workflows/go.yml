@@ -19,7 +19,7 @@ jobs:
     - uses: "finnp/create-file-action@master"
       env:
         FILE_NAME: "configs/sqlboiler.toml"
-        FILE_DATA: ${{ secrets.SQL_BOILER }}
+        FILE_DATA: ${{ secrets.SQLBOILER_TOML }}
 
     - name: Set up Go
       uses: actions/setup-go@v2
