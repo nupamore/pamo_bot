@@ -34,7 +34,9 @@ jobs:
         sqlboiler mysql --config configs/sqlboiler.toml
 
     - name: Test
-      run: go test -v cmd/bot/bot.go
+      run: |
+        go test -v cmd/bot/bot.go
+        go test -v cmd/server/server.go
       
   deploy:
     runs-on: ubuntu-latest

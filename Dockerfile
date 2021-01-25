@@ -9,6 +9,7 @@ RUN go get github.com/volatiletech/sqlboiler/v4/drivers/sqlboiler-mysql
 
 RUN sqlboiler mysql --config configs/sqlboiler.toml
 RUN go build cmd/bot/bot.go
+RUN go build cmd/server/server.go
 
 # Runtime Stage
 FROM golang:1.14-alpine
@@ -16,5 +17,6 @@ FROM golang:1.14-alpine
 WORKDIR /go/src/pamo-bot
 COPY --from=builder /go/src/pamo-bot/configs/.env configs/.env
 COPY --from=builder /go/src/pamo-bot/bot bot
+COPY --from=builder /go/src/pamo-bot/server server
 
-CMD ["./bot"]
+CMD ./server & ./bot & wait
