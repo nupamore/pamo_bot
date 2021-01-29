@@ -16,23 +16,24 @@ import (
 
 func router(app *fiber.App) {
 	ctrl := controllers.Controller{}
-	// external
-	app.Get("/links/:linkID", ctrl.GetLink)
-	app.Put("/links/:linkID", ctrl.LogLink)
+	api := app.Group("/api")
+	// test
+	api.Get("/links/:linkID", ctrl.GetLink)
+	api.Put("/links/:linkID", ctrl.LogLink)
 	// auth
-	app.Get("/auth/login", ctrl.Login)
-	app.Get("/auth/callback", ctrl.LoginCallback)
-	app.Get("/auth/logout", ctrl.Logout)
-	// internal
-	api := app.Group("/api/v1", ctrl.AuthFilter)
-	api.Get("/me", ctrl.GetMyInfo)
-	api.Get("/guilds", ctrl.GetGuilds)
-	api.Get("/guilds/:guildID", ctrl.GetGuild)
-	api.Get("/guilds/:guildID/uploaders", ctrl.GetUploaders)
-	api.Get("/guilds/:guildID/images", ctrl.GetImages)
-	api.Get("/links", ctrl.GetLinks)
-	api.Post("/links", ctrl.InitLinks)
-	api.Put("/links/:linkID", ctrl.UpdateLink)
+	api.Get("/auth/login", ctrl.Login)
+	api.Get("/auth/callback", ctrl.LoginCallback)
+	api.Get("/auth/logout", ctrl.Logout)
+	// auth required
+	v1 := api.Group("/v1", ctrl.AuthFilter)
+	v1.Get("/me", ctrl.GetMyInfo)
+	v1.Get("/guilds", ctrl.GetGuilds)
+	v1.Get("/guilds/:guildID", ctrl.GetGuild)
+	v1.Get("/guilds/:guildID/uploaders", ctrl.GetUploaders)
+	v1.Get("/guilds/:guildID/images", ctrl.GetImages)
+	v1.Get("/links", ctrl.GetLinks)
+	v1.Post("/links", ctrl.InitLinks)
+	v1.Put("/links/:linkID", ctrl.UpdateLink)
 }
 
 func main() {
