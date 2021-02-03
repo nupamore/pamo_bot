@@ -53,8 +53,8 @@ func (s *ImageService) Scrap(m discord.Message, guildID discord.GuildID) error {
 	}
 
 	blur, _ := BlurHash(utils.DiscordMediaServer(
-		string(m.ChannelID),
-		string(file.ID),
+		strconv.FormatUint(uint64(m.ChannelID), 10),
+		strconv.FormatUint(uint64(file.ID), 10),
 		file.Filename,
 		"width=48&height=27",
 	))
