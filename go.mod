@@ -10,6 +10,7 @@ require (
 	github.com/buckket/go-blurhash v1.1.0
 	github.com/dchest/uniuri v0.0.0-20200228104902-7aecb25e1fe5
 	github.com/diamondburned/arikawa v1.3.2
+	github.com/diamondburned/dgwidgets v0.0.0-20200731234347-9c2c07fe2e11
 	github.com/friendsofgo/errors v0.9.2
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/gofiber/fiber/v2 v2.2.3
