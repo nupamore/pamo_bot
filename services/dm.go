@@ -1,8 +1,6 @@
 package services
 
-import (
-	"github.com/diamondburned/arikawa/discord"
-)
+import "github.com/diamondburned/arikawa/v2/discord"
 
 // SendDM : send direct message
 func SendDM(userID discord.UserID, contents string) error {

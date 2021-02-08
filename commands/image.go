@@ -1,16 +1,19 @@
 package commands
 
 import (
-	"strconv"
 	"time"
 
-	"github.com/diamondburned/arikawa/bot"
-	"github.com/diamondburned/arikawa/discord"
-	"github.com/diamondburned/arikawa/gateway"
-	"github.com/diamondburned/dgwidgets"
+	"github.com/diamondburned/arikawa/v2/bot"
+	"github.com/diamondburned/arikawa/v2/discord"
+	"github.com/diamondburned/arikawa/v2/gateway"
 	"github.com/nupamore/pamo_bot/models"
 	"github.com/nupamore/pamo_bot/services"
 	"github.com/nupamore/pamo_bot/utils"
+)
+
+const (
+	refreshEmoji = "🔄"
+	timeout      = 1 * time.Minute
 )
 
 func image2embed(image *models.DiscordImage) *discord.Embed {
@@ -27,21 +30,11 @@ func image2embed(image *models.DiscordImage) *discord.Embed {
 
 // Image : get a random image from this guild
 func (cmd *Commands) Image(m *gateway.MessageCreateEvent, arg bot.RawArguments) error {
+	s := cmd.Ctx.Session
 	var ownerName string
 	if arg != "" {
 		ownerName = string(arg)
 	}
-
-	p := &dgwidgets.Paginator{
-		Session:                 cmd.Ctx.Session,
-		Index:                   0,
-		Loop:                    false,
-		DeleteMessageWhenDone:   false,
-		DeleteReactionsWhenDone: false,
-		ColourWhenDone:          0xFF0000,
-		Widget:                  dgwidgets.NewWidget(cmd.Ctx.Session, m.ChannelID, nil),
-	}
-	p.Widget.Timeout = 5 * time.Minute
 
 	embed := discord.Embed{}
 
@@ -49,32 +42,42 @@ func (cmd *Commands) Image(m *gateway.MessageCreateEvent, arg bot.RawArguments) 
 	image, err := services.Image.Random(m.GuildID, ownerName)
 	if err != nil {
 		embed.Description = "Couldn't find any image"
-		p.Add(embed)
-		return p.Spawn()
+		s.SendMessage(m.ChannelID, "", &embed)
+		return nil
 	}
+
 	embed = *image2embed(image)
+	msg, err := s.SendMessage(m.ChannelID, "", &embed)
+	s.React(msg.ChannelID, msg.ID, refreshEmoji)
+	time.Sleep(time.Millisecond * 250)
 
-	p.Add(embed)
-
-	p.Widget.Handle(dgwidgets.NavLeft, func(r *gateway.MessageReactionAddEvent) {
-		if err := p.PreviousPage(); err == nil {
-			p.Update()
+	// add handler
+	remove := s.AddHandler(func(r *gateway.MessageReactionAddEvent) {
+		if r.MessageID != msg.ID || r.Emoji.Name != refreshEmoji {
+			return
 		}
-	})
-	// new image
-	p.Widget.Handle(dgwidgets.NavRight, func(r *gateway.MessageReactionAddEvent) {
-		if err := p.NextPage(); err != nil {
-			newImage, err := services.Image.Random(m.GuildID, ownerName)
-			if err != nil {
-				return
-			}
-			newEmbed := *image2embed(newImage)
-			newEmbed.Description = strconv.Itoa(p.Index + 1)
-			p.Add(newEmbed)
-			p.NextPage()
+		image, err := services.Image.Random(m.GuildID, ownerName)
+		if err != nil {
+			return
 		}
-		p.Update()
+		embed = *image2embed(image)
+		s.EditMessage(msg.ChannelID, msg.ID, "", &embed, false)
+		s.DeleteUserReaction(
+			msg.ChannelID,
+			msg.ID,
+			r.UserID,
+			refreshEmoji,
+		)
 	})
 
-	return p.Spawn()
+	// remove handler
+	time.Sleep(timeout)
+	s.DeleteReactions(
+		msg.ChannelID,
+		msg.ID,
+		refreshEmoji,
+	)
+	defer remove()
+
+	return err
 }

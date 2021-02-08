@@ -3,7 +3,7 @@ package events
 import (
 	"fmt"
 
-	"github.com/diamondburned/arikawa/gateway"
+	"github.com/diamondburned/arikawa/v2/gateway"
 	"github.com/nupamore/pamo_bot/services"
 )
 

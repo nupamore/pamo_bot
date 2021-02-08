@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/dchest/uniuri"
-	"github.com/diamondburned/arikawa/discord"
+	"github.com/diamondburned/arikawa/v2/discord"
 
 	"github.com/nupamore/pamo_bot/configs"
 	"github.com/nupamore/pamo_bot/models"

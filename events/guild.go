@@ -5,12 +5,11 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/diamondburned/arikawa/v2/gateway"
 	"github.com/nupamore/pamo_bot/models"
 	"github.com/nupamore/pamo_bot/services"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
-
-	"github.com/diamondburned/arikawa/gateway"
 )
 
 // GuildCreated : join guild

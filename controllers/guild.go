@@ -3,7 +3,7 @@ package controllers
 import (
 	"strconv"
 
-	"github.com/diamondburned/arikawa/discord"
+	"github.com/diamondburned/arikawa/v2/discord"
 	"github.com/gofiber/fiber/v2"
 	"github.com/nupamore/pamo_bot/models"
 	"github.com/nupamore/pamo_bot/services"

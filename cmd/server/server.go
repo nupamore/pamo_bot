@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/arl/statsviz"
-	"github.com/diamondburned/arikawa/api"
+	"github.com/diamondburned/arikawa/v2/api"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/recover"

@@ -14,7 +14,7 @@ import (
 	"time"
 
 	"github.com/buckket/go-blurhash"
-	"github.com/diamondburned/arikawa/discord"
+	"github.com/diamondburned/arikawa/v2/discord"
 	"github.com/nupamore/pamo_bot/models"
 	"github.com/nupamore/pamo_bot/utils"
 	"github.com/volatiletech/null/v8"

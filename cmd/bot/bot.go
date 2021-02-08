@@ -6,10 +6,10 @@ import (
 	"strings"
 
 	"github.com/arl/statsviz"
-	"github.com/diamondburned/arikawa/api"
-	"github.com/diamondburned/arikawa/bot"
-	"github.com/diamondburned/arikawa/discord"
-	"github.com/diamondburned/arikawa/gateway"
+	"github.com/diamondburned/arikawa/v2/api"
+	"github.com/diamondburned/arikawa/v2/bot"
+	"github.com/diamondburned/arikawa/v2/discord"
+	"github.com/diamondburned/arikawa/v2/gateway"
 	"github.com/nupamore/pamo_bot/commands"
 	"github.com/nupamore/pamo_bot/configs"
 	"github.com/nupamore/pamo_bot/events"
@@ -36,6 +36,8 @@ func main() {
 		ctx.HasPrefix = bot.NewPrefix(prefix)
 		me, _ := ctx.Me()
 
+		ctx.Gateway.AddIntents(gateway.IntentGuildMessageReactions)
+
 		ctx.AddHandler(events.GuildCreated)
 		ctx.AddHandler(events.GuildDeleted)
 		ctx.AddHandler(func(m *gateway.MessageCreateEvent) {
@@ -48,16 +50,12 @@ func main() {
 			}
 		})
 
-		// set activity
-		ctx.Gateway.Identifier.IdentifyData = gateway.IdentifyData{
-			Token: token,
-			Presence: &gateway.UpdateStatusData{
-				Game: &discord.Activity{
-					Name: configs.Env["BOT_STATUS"],
-					Type: discord.GameActivity,
-				},
-				Status: discord.OnlineStatus,
-			},
+		ctx.Gateway.Identifier.IdentifyData.Presence = &gateway.UpdateStatusData{
+			Activities: []discord.Activity{{
+				Name: configs.Env["BOT_STATUS"],
+				Type: discord.GameActivity,
+			}},
+			Status: gateway.OnlineStatus,
 		}
 
 		return nil
