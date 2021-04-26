@@ -78,6 +78,7 @@ func (ctrl *Controller) GetUploaders(c *fiber.Ctx) error {
 // GetImages : [GET] /guilds/:guildID/images
 func (ctrl *Controller) GetImages(c *fiber.Ctx) error {
 	guildID, err := discord.ParseSnowflake(c.Params("guildID"))
+	owner := c.Query("owner")
 	size, err := strconv.Atoi(c.Query("size"))
 	page, err := strconv.Atoi(c.Query("page"))
 	if err != nil {
@@ -94,7 +95,7 @@ func (ctrl *Controller) GetImages(c *fiber.Ctx) error {
 		All:  all,
 	}
 
-	images, err := services.Image.List(discord.GuildID(guildID), size, page)
+	images, err := services.Image.List(discord.GuildID(guildID), owner, size, page)
 	if err != nil {
 		return ctrl.SendError(c, DBError, err)
 	}

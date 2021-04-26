@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"fmt"
 	"image"
 	_ "image/gif"  // gif
 	_ "image/jpeg" // jpg
@@ -142,9 +143,10 @@ func (s *ImageService) Count(guildID discord.GuildID) (int, error) {
 }
 
 // List : get images with page
-func (s *ImageService) List(guildID discord.GuildID, size int, page int) (models.DiscordImageSlice, error) {
+func (s *ImageService) List(guildID discord.GuildID, ownerName string, size int, page int) (models.DiscordImageSlice, error) {
 	images, err := models.DiscordImages(
 		qm.Where("guild_id = ?", guildID),
+		qm.And("owner_name LIKE ?", fmt.Sprintf("%%%s%%", ownerName)),
 		qm.Limit(size),
 		qm.Offset(size*page),
 		qm.OrderBy("reg_date DESC"),
