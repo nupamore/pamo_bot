@@ -1,12 +1,15 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"regexp"
 
 	"github.com/arl/statsviz"
 	"github.com/diamondburned/arikawa/v2/api"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cache"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/nupamore/pamo_bot/configs"
@@ -52,6 +55,17 @@ func main() {
 	app.Use(cors.New(cors.Config{
 		AllowOrigins:     configs.Env["WEB_URL"],
 		AllowCredentials: true,
+	}))
+	app.Use(cache.New(cache.Config{
+		Next: func(c *fiber.Ctx) bool {
+			isAuth, _ := regexp.MatchString("/api/auth", c.Path())
+			notLogin := c.Cookies("session_id") == ""
+			notGET := c.Method() != "GET"
+			return isAuth || notLogin || notGET
+		},
+		KeyGenerator: func(c *fiber.Ctx) string {
+			return fmt.Sprintf("%s%s%s", c.Cookies("session_id"), c.Method(), c.OriginalURL())
+		},
 	}))
 	router(app)
 	app.Listen(configs.Env["SERVER_PORT"])

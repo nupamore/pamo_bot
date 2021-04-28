@@ -93,10 +93,10 @@ func (s *ImageService) Crawl(channelID discord.ChannelID, guildID discord.GuildI
 		if len(m.Attachments) > 0 && !m.Author.Bot {
 			wg.Add(1)
 			go func(m discord.Message) {
+				defer wg.Done()
 				if err := s.Scrap(m, guildID); err == nil {
 					atomic.AddUint32(&count, 1)
 				}
-				wg.Done()
 			}(m)
 		}
 	}

@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"strconv"
+	"sync"
 
 	"github.com/diamondburned/arikawa/v2/discord"
 	"github.com/gofiber/fiber/v2"
@@ -14,8 +15,22 @@ func (ctrl *Controller) GetGuilds(c *fiber.Ctx) error {
 	sess, _ := services.Auth.Store.Get(c)
 	auth := sess.Get("Authorization")
 
-	oauthGuilds, err := services.Auth.Guilds(auth.(string))
-	serverGuilds, err := services.Guild.All()
+	var err error
+	oauthGuilds := []*services.DiscordGuild{}
+	serverGuilds := []*models.DiscordGuild{}
+
+	var wg sync.WaitGroup
+	wg.Add(2)
+	go func() {
+		defer wg.Done()
+		oauthGuilds, err = services.Auth.Guilds(auth.(string))
+	}()
+	go func() {
+		defer wg.Done()
+		serverGuilds, err = services.Guild.All()
+	}()
+	wg.Wait()
+
 	if err != nil {
 		return ctrl.SendError(c, DBError, err)
 	}
@@ -85,17 +100,32 @@ func (ctrl *Controller) GetImages(c *fiber.Ctx) error {
 		return ctrl.SendError(c, InvalidParamError, err)
 	}
 
-	all, err := services.Image.Count(discord.GuildID(guildID))
-	if all < size*page {
-		page = all / size
-	}
-	pageMeta := PageMeta{
-		Size: size,
-		Page: page,
-		All:  all,
-	}
+	var all int
+	var pageMeta PageMeta
+	var images models.DiscordImageSlice
 
-	images, err := services.Image.List(discord.GuildID(guildID), owner, size, page)
+	var wg sync.WaitGroup
+	wg.Add(2)
+	// images count
+	go func() {
+		defer wg.Done()
+		all, err = services.Image.Count(discord.GuildID(guildID))
+		if all < size*page {
+			page = all / size
+		}
+		pageMeta = PageMeta{
+			Size: size,
+			Page: page,
+			All:  all,
+		}
+	}()
+	// image list
+	go func() {
+		defer wg.Done()
+		images, err = services.Image.List(discord.GuildID(guildID), owner, size, page)
+	}()
+	wg.Wait()
+
 	if err != nil {
 		return ctrl.SendError(c, DBError, err)
 	}
