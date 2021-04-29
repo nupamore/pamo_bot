@@ -18,6 +18,10 @@ import (
 )
 
 func router(app *fiber.App) {
+	// healthcheck
+	app.Get("/", func(c *fiber.Ctx) error {
+		return c.SendStatus(200)
+	})
 	ctrl := controllers.Controller{}
 	api := app.Group("/api")
 	// test

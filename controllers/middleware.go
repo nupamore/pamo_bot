@@ -13,6 +13,7 @@ func (ctrl *Controller) AuthFilter(c *fiber.Ctx) error {
 	sess, _ := services.Auth.Store.Get(c)
 	auth := sess.Get("Authorization")
 	if auth == nil {
+		sess.Destroy()
 		return ctrl.SendError(c, AuthError, errors.New("Need login"))
 	}
 
