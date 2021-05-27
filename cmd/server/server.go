@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+	"time"
 
 	"github.com/arl/statsviz"
 	"github.com/diamondburned/arikawa/v2/api"
@@ -38,6 +39,7 @@ func router(app *fiber.App) {
 	v1.Get("/guilds/:guildID", ctrl.GetGuild)
 	v1.Get("/guilds/:guildID/uploaders", ctrl.GetUploaders)
 	v1.Get("/guilds/:guildID/images", ctrl.GetImages)
+	v1.Delete("/guilds/:guildID/images", ctrl.DeleteImages)
 	v1.Get("/links", ctrl.GetLinks)
 	v1.Post("/links", ctrl.InitLinks)
 	v1.Put("/links/:linkID", ctrl.UpdateLink)
@@ -70,6 +72,8 @@ func main() {
 		KeyGenerator: func(c *fiber.Ctx) string {
 			return fmt.Sprintf("%s%s%s", c.Cookies("session_id"), c.Method(), c.OriginalURL())
 		},
+		Expiration:   10 * time.Second,
+		CacheControl: true,
 	}))
 	router(app)
 	app.Listen(configs.Env["SERVER_PORT"])

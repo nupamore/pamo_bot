@@ -18,13 +18,12 @@ https://docs.aws.amazon.com/translate/latest/dg/what-is.html#what-is-languages
 最大[max]のランダム数字を取得します。
 
 - ***$crawl [on/off]***  
-当該チャンネル(サーバーではない)に新しくアップロードされるイメージを[アーカイブ](vrc.nupa.moe)に保存します。  
+当該チャンネル(サーバーではない)に新しくアップロードされるイメージを[アーカイブ](bot.nupa.moe)に保存します。  
 1つのサーバーで1つのチャンネルのみを監視し、管理者権限のみ可能なコマンドです。    
 ***$crawl past***は当該チャンネルの過去のイメージをアーカイブに保存します。
 
-## [アーカイブ](http://vrc.nupa.moe/)  
+## [アーカイブ](http://bot.nupa.moe/)  
 ディスコードアカウントでログインして、ボットが入っているサーバーのリストが表示されます。  
-イメージにマウスを上げると削除ボタンが表示されます。  
-自分がアップロードした画像のみ表示され、サーバー管理者は全て可能です。  
+自分が上げたイメージや、自分が管理者でいるサーバーのイメージを消すことができます。  
 - ランダムイメージ API  
-    https://vrc.nupa.moe/randomImage/{ serverId }
+    https://v.nupa.moe/image/[discord_server_id]

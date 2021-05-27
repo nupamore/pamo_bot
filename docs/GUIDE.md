@@ -18,13 +18,12 @@ Randomly shows one of the images stored in the archive. (See ***Crawl*** below)
 Gets a random number with [max] as the maximum.
 
 - ***$crawl [on/off]***  
-Save new images uploaded to the channel(not server) to [Archive](vrc.nupa.moe).  
+Save new images uploaded to the channel(not server) to [Archive](bot.nupa.moe).  
 This is a command that monitors only one channel in a server and allows only administrator privileges.  
 ***$crawl past*** stores past images of the channel in the archive.
 
-## [Archive](http://vrc.nupa.moe/)  
+## [Archive](http://bot.nupa.moe/)  
 Log in with your Discord account, and a list of servers containing the bot is displayed.  
-When you hover over the image, you will see a delete button.  
-Only images uploaded by yourself are displayed, and server administrators can do all of them.  
+You can erase images you post or images on servers you are an administrator.  
 - Random image API  
-    https://vrc.nupa.moe/randomImage/[discord_server_id]
+    https://v.nupa.moe/image/[discord_server_id]

@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/json"
 	"strconv"
 	"sync"
 
@@ -133,5 +134,47 @@ func (ctrl *Controller) GetImages(c *fiber.Ctx) error {
 	return c.JSON(Response{
 		PageMeta: &pageMeta,
 		Data:     images,
+	})
+}
+
+type deleteImageRequest struct {
+	FileIDs []interface{} `json:"fileIDs"`
+}
+
+// DeleteImages : [DELETE] /guilds/:guildID/images
+func (ctrl *Controller) DeleteImages(c *fiber.Ctx) error {
+	guildID, err := discord.ParseSnowflake(c.Params("guildID"))
+	if err != nil {
+		return ctrl.SendError(c, InvalidParamError, err)
+	}
+	var req deleteImageRequest
+	json.Unmarshal(c.Body(), &req)
+
+	// permission
+	sess, _ := services.Auth.Store.Get(c)
+	auth := sess.Get("Authorization")
+	id := sess.Get("UserID")
+	userID, _ := discord.ParseSnowflake(id.(string))
+	oauthGuilds, _ := services.Auth.Guilds(auth.(string))
+	isMaster := false
+	for _, og := range oauthGuilds {
+		if og.ID == c.Params("guildID") {
+			isMaster = og.Owner
+			break
+		}
+	}
+
+	count := 0
+	if isMaster {
+		count, err = services.Image.DeleteMaster(discord.GuildID(guildID), req.FileIDs)
+	} else {
+		count, err = services.Image.Delete(discord.UserID(userID), discord.GuildID(guildID), req.FileIDs)
+	}
+
+	if err != nil || count != len(req.FileIDs) {
+		return ctrl.SendError(c, DBError, err)
+	}
+	return c.JSON(Response{
+		Data: count,
 	})
 }

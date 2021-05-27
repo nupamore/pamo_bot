@@ -37,6 +37,7 @@ func (s *ImageService) Random(guildID discord.GuildID, ownerName string) (*model
 	image, err := models.DiscordImages(
 		qm.Where("guild_id = ?", guildID),
 		qm.And("owner_name LIKE ?", ownerName),
+		qm.And("status IS NULL"),
 		qm.OrderBy("rand()"),
 	).One(DB)
 
@@ -137,6 +138,7 @@ func (s *ImageService) Uploaders(guildID discord.GuildID) ([]Uploader, error) {
 func (s *ImageService) Count(guildID discord.GuildID) (int, error) {
 	count, err := models.DiscordImages(
 		qm.Where("guild_id = ?", guildID),
+		qm.And("status IS NULL"),
 	).Count(DB)
 
 	return int(count), err
@@ -147,12 +149,38 @@ func (s *ImageService) List(guildID discord.GuildID, ownerName string, size int,
 	images, err := models.DiscordImages(
 		qm.Where("guild_id = ?", guildID),
 		qm.And("owner_name LIKE ?", fmt.Sprintf("%%%s%%", ownerName)),
+		qm.And("status IS NULL"),
 		qm.Limit(size),
 		qm.Offset(size*page),
 		qm.OrderBy("reg_date DESC"),
 	).All(DB)
 
 	return images, err
+}
+
+// Delete : delete images
+func (s *ImageService) Delete(ownerID discord.UserID, guildID discord.GuildID, fileIDs []interface{}) (int, error) {
+	images, err := models.DiscordImages(
+		qm.Where("owner_id = ? ", ownerID),
+		qm.And("guild_id = ?", guildID),
+		qm.AndIn("file_id IN ?", fileIDs...),
+	).All(DB)
+
+	count, err := images.UpdateAll(DB, models.M{"status": "DELETED"})
+
+	return int(count), err
+}
+
+// DeleteMaster : delete images master permission
+func (s *ImageService) DeleteMaster(guildID discord.GuildID, fileIDs []interface{}) (int, error) {
+	images, err := models.DiscordImages(
+		qm.And("guild_id = ?", guildID),
+		qm.AndIn("file_id IN ?", fileIDs...),
+	).All(DB)
+
+	count, err := images.UpdateAll(DB, models.M{"status": "DELETED"})
+
+	return int(count), err
 }
 
 // BlurHash : url to blurhash

@@ -27,7 +27,7 @@ Get a random image uploaded by [username]
 		Title:       "Pamo_bot commands list",
 		Description: strings.Replace(desc, "$", prefix, -1),
 		Fields: []discord.EmbedField{
-			{Name: "**Photo Archive**", Value: "https://vrc.nupa.moe"},
+			{Name: "**Photo Archive**", Value: "https://bot.nupa.moe"},
 		},
 	}
 
